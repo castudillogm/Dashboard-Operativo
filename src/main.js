@@ -225,7 +225,7 @@ function renderWarehouse() {
       }
 
       expCard.className = `expedition-card ${isPartial ? 'partial' : 'neutral'}`;
-      expCard.querySelector('.exp-counter').textContent = `[${exp.pendingParts}/${exp.totalParts}]`;
+      expCard.querySelector('.exp-counter').textContent = `${exp.pendingParts}/${exp.totalParts} Partidas`;
     });
 
     const currentExpIds = destExpeditions.map(e => `exp-${e.id}`);
