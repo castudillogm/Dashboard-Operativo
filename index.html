@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Operativo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <script type="module" crossorigin src="/Dashboard-Operativo/assets/index-OQ8KqENV.js"></script>
+  <link rel="stylesheet" crossorigin href="/Dashboard-Operativo/assets/index-CkVzfRyB.css">
+</head>
+<body>
+  <header class="dashboard-header">
+    <div class="dashboard-title">Dashboard Operativo</div>
+    <div class="header-right">
+      <div id="connection-status" class="status-indicator">
+        <span class="status-dot"></span>
+        <span class="status-text">ERP ONLINE</span>
+      </div>
+      <button id="theme-toggle" class="theme-toggle" title="Cambiar Tema">
+        <svg id="theme-icon-sun" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" style="display: none;">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+        </svg>
+        <svg id="theme-icon-moon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+        </svg>
+      </button>
+      <div id="clock" style="font-family: var(--font-mono); color: var(--text-secondary);">00:00:00</div>
+    </div>
+  </header>
+
+  <main class="dashboard-content">
+    <!-- SECCIÓN MUELLES (TOP) -->
+    <section class="section-docks">
+      <div id="group-baleares" class="group-container">
+        <div class="group-header">Baleares [IBZ, MAH, PMI, FOR]</div>
+        <div id="grid-baleares" class="group-grid">
+          <!-- Active docks for Baleares will be rendered here -->
+        </div>
+      </div>
+
+      <div id="group-canarias" class="group-container">
+        <div class="group-header">Canarias [ACE, FUE, LPA, SCT, SSG, HIE, SPC]</div>
+        <div id="grid-canarias" class="group-grid">
+          <!-- Active docks for Canarias will be rendered here -->
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN ALMACÉN (CENTER) -->
+    <section id="section-warehouse" class="section-warehouse">
+      <!-- Dynamic columns by destination will be rendered here -->
+    </section>
+  </main>
+
+  <!-- CONFIGURATION MODAL -->
+  <div id="settings-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Configuración de Enlace ERP</h2>
+        <button id="close-modal" class="close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Modo de Operación</label>
+          <select id="api-mode">
+            <option value="mock">Simulación (Mock Data)</option>
+            <option value="real">Producción (API Real)</option>
+          </select>
+        </div>
+        <div class="form-group" id="url-group">
+          <label>URL de la API del ERP</label>
+          <input type="text" id="api-url" placeholder="http://192.168.1.100:8080/api/v1">
+        </div>
+        <div class="form-group">
+          <label>Intervalo de Refresco (segundos)</label>
+          <input type="number" id="api-interval" value="3" min="1">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="save-settings" class="save-btn">Guardar Cambios</button>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
