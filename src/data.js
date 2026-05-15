@@ -33,13 +33,13 @@ export const INITIAL_STATE = {
     }
   ],
   expeditions: [
-    { id: 'EBCN001', destination: 'PMI', pendingParts: 12, totalParts: 12 },
-    { id: 'EBCN002', destination: 'PMI', pendingParts: 5, totalParts: 8 }, // Partial
-    { id: 'EBCN003', destination: 'IBZ', pendingParts: 20, totalParts: 20 },
-    { id: 'EBCN004', destination: 'LPA', pendingParts: 15, totalParts: 30 }, // Partial
-    { id: 'EBCN005', destination: 'LPA', pendingParts: 50, totalParts: 50 },
-    { id: 'EBCN006', destination: 'MAH', pendingParts: 8, totalParts: 8 },
-    { id: 'EBCN007', destination: 'SCT', pendingParts: 10, totalParts: 10 },
+    { id: 'EBCN001', destination: 'PMI', pendingParts: 12, totalParts: 12, totalWeight: 1450 },
+    { id: 'EBCN002', destination: 'PMI', pendingParts: 5, totalParts: 8, totalWeight: 920 },
+    { id: 'EBCN003', destination: 'IBZ', pendingParts: 20, totalParts: 20, totalWeight: 3100 },
+    { id: 'EBCN004', destination: 'LPA', pendingParts: 15, totalParts: 30, totalWeight: 5400 },
+    { id: 'EBCN005', destination: 'LPA', pendingParts: 50, totalParts: 50, totalWeight: 12000 },
+    { id: 'EBCN006', destination: 'MAH', pendingParts: 8, totalParts: 8, totalWeight: 850 },
+    { id: 'EBCN007', destination: 'SCT', pendingParts: 10, totalParts: 10, totalWeight: 1100 },
   ]
 };
 

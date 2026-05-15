@@ -191,9 +191,24 @@ function renderWarehouse() {
       column = document.createElement('div');
       column.id = `col-${dest}`;
       column.className = 'warehouse-column fade-in';
-      column.innerHTML = `<div class="column-header">${dest}</div><div class="expedition-list"></div>`;
+      column.innerHTML = `
+        <div class="column-header">
+          <span class="column-dest">${dest}</span>
+          <div class="column-stats">
+            <span class="stat-badge count">0 EXP</span>
+            <span class="stat-badge weight">0 kg</span>
+          </div>
+        </div>
+        <div class="expedition-list"></div>
+      `;
       warehouseContainer.appendChild(column);
     }
+
+    const totalExpCount = destExpeditions.length;
+    const totalExpWeight = destExpeditions.reduce((sum, e) => sum + e.totalWeight, 0);
+
+    column.querySelector('.stat-badge.count').textContent = `${totalExpCount} EXP`;
+    column.querySelector('.stat-badge.weight').textContent = `${totalExpWeight.toLocaleString()} kg`;
 
     const list = column.querySelector('.expedition-list');
     
