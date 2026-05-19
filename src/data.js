@@ -1,50 +1,96 @@
-// Mock Data for the Logistics Dashboard
+// Mock Data for the Logistics Dashboard supporting multiple delegations
 
 export const DESTINATIONS = {
   BALEARES: ['IBZ', 'MAH', 'PMI', 'FOR'],
-  CANARIAS: ['ACE', 'FUE', 'LPA', 'SCT', 'SSG', 'HIE', 'SPC']
+  CANARIAS: ['ACE', 'FUE', 'LPA', 'SCT', 'SSG', 'HIE', 'SPC'],
+  PENINSULA: ['BCN', 'MAD', 'SVQ', 'ALC', 'BIO', 'VGO', 'VLC']
 };
 
-export const INITIAL_STATE = {
-  docks: [
-    { 
-      id: 'M01', 
-      containerId: 'CONT-4412', 
-      destination: 'PMI', 
-      currentWeight: 1250, 
-      maxWeight: 15000,
-      group: 'BALEARES'
-    },
-    { 
-      id: 'M05', 
-      containerId: 'CONT-8890', 
-      destination: 'LPA', 
-      currentWeight: 8400, 
-      maxWeight: 12000,
-      group: 'CANARIAS'
-    },
-    { 
-      id: 'M09', 
-      containerId: 'CONT-1234', 
-      destination: 'IBZ', 
-      currentWeight: 200, 
-      maxWeight: 10000,
-      group: 'BALEARES'
-    }
-  ],
-  expeditions: [
-    { id: 'EBCN001', destination: 'PMI', pendingParts: 12, totalParts: 12, totalWeight: 1450 },
-    { id: 'EBCN002', destination: 'PMI', pendingParts: 5, totalParts: 8, totalWeight: 920 },
-    { id: 'EBCN003', destination: 'IBZ', pendingParts: 20, totalParts: 20, totalWeight: 3100 },
-    { id: 'EBCN004', destination: 'LPA', pendingParts: 15, totalParts: 30, totalWeight: 5400 },
-    { id: 'EBCN005', destination: 'LPA', pendingParts: 50, totalParts: 50, totalWeight: 12000 },
-    { id: 'EBCN006', destination: 'MAH', pendingParts: 8, totalParts: 8, totalWeight: 850 },
-    { id: 'EBCN007', destination: 'SCT', pendingParts: 10, totalParts: 10, totalWeight: 1100 },
-  ]
+export const DELEGATIONS = [
+  { code: 'BCN', name: 'Barcelona', group: 'PENINSULA' },
+  { code: 'MAD', name: 'Madrid', group: 'PENINSULA' },
+  { code: 'SVQ', name: 'Sevilla', group: 'PENINSULA' },
+  { code: 'ALC', name: 'Alicante', group: 'PENINSULA' },
+  { code: 'BIO', name: 'Bilbao', group: 'PENINSULA' },
+  { code: 'VGO', name: 'Vigo', group: 'PENINSULA' },
+  { code: 'VLC', name: 'Valencia', group: 'PENINSULA' },
+  { code: 'PMI', name: 'Palma de Mallorca', group: 'BALEARES' },
+  { code: 'IBZ', name: 'Ibiza', group: 'BALEARES' },
+  { code: 'MAH', name: 'Mahón', group: 'BALEARES' },
+  { code: 'LPA', name: 'Las Palmas', group: 'CANARIAS' },
+  { code: 'SCT', name: 'Santa Cruz de Tenerife', group: 'CANARIAS' }
+];
+
+// Helper to determine the group of a destination code
+export function getDestinationGroup(code) {
+  if (DESTINATIONS.BALEARES.includes(code)) return 'BALEARES';
+  if (DESTINATIONS.CANARIAS.includes(code)) return 'CANARIAS';
+  if (DESTINATIONS.PENINSULA.includes(code)) return 'PENINSULA';
+  return 'PENINSULA'; // Default fallback
+}
+
+// Initial mock states per delegation
+const mockStates = {
+  BCN: {
+    docks: [
+      { id: 'M01', containerId: 'CONT-4412', destination: 'PMI', currentWeight: 1250, maxWeight: 15000 },
+      { id: 'M05', containerId: 'CONT-8890', destination: 'LPA', currentWeight: 8400, maxWeight: 12000 },
+      { id: 'M09', containerId: 'CONT-1234', destination: 'IBZ', currentWeight: 200, maxWeight: 10000 },
+      { id: 'M12', containerId: 'CONT-5678', destination: 'MAD', currentWeight: 5200, maxWeight: 15000 }
+    ],
+    expeditions: [
+      { id: 'EBCN001', origin: 'BCN', destination: 'PMI', pendingParts: 12, totalParts: 12, totalWeight: 1450 },
+      { id: 'EBCN002', origin: 'BCN', destination: 'PMI', pendingParts: 5, totalParts: 8, totalWeight: 920 },
+      { id: 'EBCN003', origin: 'MAD', destination: 'BCN', pendingParts: 6, totalParts: 10, totalWeight: 2200 }, // Reparto BCN from MAD
+      { id: 'EBCN004', origin: 'MAD', destination: 'PMI', pendingParts: 8, totalParts: 8, totalWeight: 1200 },  // Transit
+      { id: 'EBCN005', origin: 'BCN', destination: 'LPA', pendingParts: 15, totalParts: 30, totalWeight: 5400 },
+      { id: 'EBCN006', origin: 'BCN', destination: 'MAH', pendingParts: 8, totalParts: 8, totalWeight: 850 },
+      { id: 'EBCN007', origin: 'BCN', destination: 'MAD', pendingParts: 3, totalParts: 5, totalWeight: 600 }
+    ]
+  },
+  MAD: {
+    docks: [
+      { id: 'M01', containerId: 'CONT-MAD1', destination: 'BCN', currentWeight: 4500, maxWeight: 15000 },
+      { id: 'M02', containerId: 'CONT-MAD2', destination: 'PMI', currentWeight: 9800, maxWeight: 15000 },
+      { id: 'M03', containerId: 'CONT-MAD3', destination: 'VLC', currentWeight: 2300, maxWeight: 12000 }
+    ],
+    expeditions: [
+      { id: 'EMAD001', origin: 'MAD', destination: 'BCN', pendingParts: 20, totalParts: 20, totalWeight: 4500 },
+      { id: 'EMAD002', origin: 'BCN', destination: 'MAD', pendingParts: 4, totalParts: 6, totalWeight: 1100 }, // Reparto MAD from BCN
+      { id: 'EMAD003', origin: 'MAD', destination: 'PMI', pendingParts: 12, totalParts: 15, totalWeight: 1800 },
+      { id: 'EMAD004', origin: 'SVQ', destination: 'MAD', pendingParts: 2, totalParts: 2, totalWeight: 300 }   // Reparto MAD from SVQ
+    ]
+  }
 };
+
+// Generates dynamic state for other delegations
+export function getMockState(delegation) {
+  if (!mockStates[delegation]) {
+    // Generate default docks & expeditions for the requested delegation
+    const isIsland = DESTINATIONS.BALEARES.includes(delegation) || DESTINATIONS.CANARIAS.includes(delegation);
+    
+    // Choose some destinations that are not the delegation itself
+    const possibleDests = DELEGATIONS
+      .map(d => d.code)
+      .filter(code => code !== delegation);
+    
+    mockStates[delegation] = {
+      docks: [
+        { id: 'M01', containerId: `CONT-${delegation}1`, destination: possibleDests[0] || 'PMI', currentWeight: 1000, maxWeight: 12000 },
+        { id: 'M02', containerId: `CONT-${delegation}2`, destination: possibleDests[1] || 'LPA', currentWeight: 3000, maxWeight: 15000 }
+      ],
+      expeditions: [
+        { id: `E${delegation}001`, origin: delegation, destination: possibleDests[0] || 'PMI', pendingParts: 10, totalParts: 10, totalWeight: 1500 },
+        { id: `E${delegation}002`, origin: delegation, destination: possibleDests[1] || 'LPA', pendingParts: 5, totalParts: 8, totalWeight: 900 },
+        { id: `E${delegation}003`, origin: possibleDests[2] || 'MAD', destination: delegation, pendingParts: 4, totalParts: 4, totalWeight: 600 } // Reparto
+      ]
+    };
+  }
+  return mockStates[delegation];
+}
 
 // Simulation helper: Simulates a scan event
-export function simulateScan(state) {
+export function simulateScan(state, activeDelegation) {
   // Find a partial expedition or any random expedition
   const partials = state.expeditions.filter(e => e.pendingParts > 0);
   if (partials.length === 0) return state;
@@ -55,10 +101,15 @@ export function simulateScan(state) {
   const dock = state.docks.find(d => d.destination === exp.destination);
   
   if (dock) {
-    // Perform "Loading" event
+    // Perform "Loading" event (container loading)
     exp.pendingParts--;
     dock.currentWeight += Math.floor(Math.random() * 200) + 50; // Random weight per item
+    if (dock.currentWeight > dock.maxWeight) dock.currentWeight = dock.maxWeight;
+  } else if (exp.destination === activeDelegation) {
+    // Reparto expedition: load/associate to Route Sheet (Hoja de Ruta)
+    exp.pendingParts--;
   }
 
   return { ...state };
 }
+

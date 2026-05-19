@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Especificación Técnica API v2.0 — Dashboard Operativo</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+    
+    :root {
+      --blue: #2563eb;
+      --blue-light: #eff6ff;
+      --green: #059669;
+      --green-light: #ecfdf5;
+      --orange: #d97706;
+      --orange-light: #fffbeb;
+      --red: #dc2626;
+      --red-light: #fef2f2;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-500: #6b7280;
+      --gray-700: #374151;
+      --gray-900: #111827;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      color: var(--gray-900);
+      line-height: 1.6;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem;
+      background: white;
+    }
+
+    @media print {
+      body { padding: 0; font-size: 11px; }
+      .page-break { page-break-before: always; }
+      .no-print { display: none; }
+    }
+
+    /* Header */
+    .doc-header {
+      text-align: center;
+      padding: 2rem 0;
+      border-bottom: 3px solid var(--blue);
+      margin-bottom: 2rem;
+    }
+    .doc-header h1 {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: var(--blue);
+      margin-bottom: 0.5rem;
+    }
+    .doc-header .subtitle {
+      font-size: 1rem;
+      color: var(--gray-500);
+    }
+    .doc-header .meta {
+      margin-top: 1rem;
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      font-size: 0.8rem;
+      color: var(--gray-500);
+    }
+
+    /* Sections */
+    h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--blue);
+      margin: 2rem 0 1rem 0;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--gray-200);
+    }
+    h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--gray-700);
+      margin: 1.5rem 0 0.75rem 0;
+    }
+    p { margin-bottom: 0.75rem; color: var(--gray-700); }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.85rem;
+    }
+    th {
+      background: var(--blue);
+      color: white;
+      padding: 0.6rem 0.75rem;
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    td {
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid var(--gray-200);
+      vertical-align: top;
+    }
+    tr:nth-child(even) { background: var(--gray-50); }
+    td code {
+      background: var(--gray-100);
+      padding: 0.15rem 0.35rem;
+      border-radius: 3px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--blue);
+    }
+
+    /* Code blocks */
+    pre {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 1.25rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      line-height: 1.5;
+      margin: 1rem 0;
+    }
+    .json-key { color: #7dd3fc; }
+    .json-string { color: #86efac; }
+    .json-number { color: #fbbf24; }
+
+    /* Alert boxes */
+    .alert {
+      padding: 1rem 1.25rem;
+      border-radius: 8px;
+      margin: 1rem 0;
+      border-left: 4px solid;
+      font-size: 0.85rem;
+    }
+    .alert-info { background: var(--blue-light); border-color: var(--blue); }
+    .alert-warning { background: var(--orange-light); border-color: var(--orange); }
+    .alert-danger { background: var(--red-light); border-color: var(--red); }
+    .alert-success { background: var(--green-light); border-color: var(--green); }
+    .alert strong { display: block; margin-bottom: 0.25rem; }
+
+    /* Semaphore boxes */
+    .semaphore {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+    .sem-box {
+      padding: 1rem;
+      border-radius: 8px;
+      border: 1px solid var(--gray-200);
+    }
+    .sem-box h4 { margin-bottom: 0.5rem; font-size: 0.9rem; }
+    .sem-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin: 0.35rem 0;
+      font-size: 0.82rem;
+    }
+    .dot {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+    .dot-blue { background: #3b82f6; }
+    .dot-orange { background: #f59e0b; }
+    .dot-green { background: #10b981; }
+    .dot-red { background: #ef4444; }
+    .dot-gray { background: #9ca3af; }
+
+    /* Flow diagram */
+    .flow {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin: 1.5rem 0;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .flow-step {
+      background: var(--blue-light);
+      border: 1px solid var(--blue);
+      border-radius: 8px;
+      padding: 0.6rem 0.9rem;
+      font-size: 0.78rem;
+      text-align: center;
+      max-width: 160px;
+      color: var(--gray-700);
+    }
+    .flow-arrow {
+      font-size: 1.25rem;
+      color: var(--blue);
+      padding: 0 0.25rem;
+      font-weight: 700;
+    }
+
+    /* Checklist */
+    .checklist {
+      list-style: none;
+      padding: 0;
+    }
+    .checklist li {
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--gray-100);
+      font-size: 0.85rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+    .checklist li::before {
+      content: "☐";
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    /* Config table */
+    .config-table td:first-child { font-weight: 600; white-space: nowrap; }
+
+    /* Footer */
+    .doc-footer {
+      margin-top: 3rem;
+      padding-top: 1rem;
+      border-top: 2px solid var(--gray-200);
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--gray-500);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- PRINT BUTTON -->
+  <div class="no-print" style="text-align:right; margin-bottom:1rem;">
+    <button onclick="window.print()" style="background:var(--blue);color:white;border:none;padding:0.75rem 1.5rem;border-radius:8px;font-weight:700;cursor:pointer;font-size:0.9rem;">
+      📄 Guardar como PDF (Ctrl+P)
+    </button>
+  </div>
+
+  <!-- HEADER -->
+  <div class="doc-header">
+    <h1>📋 Especificación Técnica de la API (v2.0)</h1>
+    <div class="subtitle">Dashboard Operativo Multi-Delegación — Integración con ERP</div>
+    <div class="meta">
+      <span>📅 Fecha: 19/05/2026</span>
+      <span>📌 Versión: 2.0 (Soporte Multi-Delegación)</span>
+      <span>👤 Proyecto: Dashboard Almacén</span>
+    </div>
+  </div>
+
+  <!-- 1. RESUMEN -->
+  <h2>1. Resumen de la Integración</h2>
+  <p>El Dashboard Operativo es un sistema multi-delegación. La delegación activa se configura mediante un PIN de seguridad en la pantalla (código por defecto <code>2026</code>) y se pasa como parámetro a la API del ERP. De esta manera, el dashboard muestra únicamente los muelles y expediciones físicamente presentes en la delegación seleccionada.</p>
+
+  <div class="flow">
+    <div class="flow-step">🏬 Selección de Delegación (ej. BCN)</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">🔄 Petición GET con parámetro ?delegation=BCN</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">📊 API filtra muelles y expediciones activos de BCN</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">🖥️ Renderizado dinámico de grupos y columnas</div>
+  </div>
+
+  <!-- 2. ENDPOINTS -->
+  <h2>2. Endpoints Requeridos</h2>
+
+  <h3>2.1. Catálogo de Delegaciones (Zonas)</h3>
+  <p>Obtiene la lista completa de delegaciones logísticas configuradas en el ERP para llenar el desplegable de configuración.</p>
+  <table>
+    <tr><th style="width:30%">Propiedad</th><th>Valor</th></tr>
+    <tr><td><strong>Método HTTP</strong></td><td><code>GET</code></td></tr>
+    <tr><td><strong>Ruta sugerida</strong></td><td><code>/api/v1/logistics/zones</code></td></tr>
+    <tr><td><strong>Respuesta</strong></td><td>Array de objetos (ej. <code>[{"code": "BCN", "name": "Barcelona"}]</code>)</td></tr>
+  </table>
+
+  <h3>2.2. Estado de Carga por Delegación</h3>
+  <p>Devuelve el estado de carga actual de los muelles y las expediciones físicas en la delegación especificada.</p>
+  <table>
+    <tr><th style="width:30%">Propiedad</th><th>Valor</th></tr>
+    <tr><td><strong>Método HTTP</strong></td><td><code>GET</code></td></tr>
+    <tr><td><strong>Ruta sugerida</strong></td><td><code>/api/v1/warehouse/status</code></td></tr>
+    <tr><td><strong>Parámetro Query</strong></td><td><code>delegation</code> (Obligatorio, ej. <code>?delegation=BCN</code>)</td></tr>
+    <tr><td><strong>CORS</strong></td><td>Debe estar habilitado (<code>Access-Control-Allow-Origin</code>)</td></tr>
+  </table>
+
+  <!-- 3. JSON -->
+  <div class="page-break"></div>
+  <h2>3. Estructura del JSON de Respuesta (Estado de Carga)</h2>
+  <p>Respuesta esperada para la consulta <code>GET /api/v1/warehouse/status?delegation=BCN</code>:</p>
+
+  <pre>{
+  <span class="json-key">"docks"</span>: [
+    {
+      <span class="json-key">"id"</span>: <span class="json-string">"M01"</span>,
+      <span class="json-key">"containerId"</span>: <span class="json-string">"CONT-4412"</span>,
+      <span class="json-key">"destination"</span>: <span class="json-string">"PMI"</span>,
+      <span class="json-key">"currentWeight"</span>: <span class="json-number">1250</span>,
+      <span class="json-key">"maxWeight"</span>: <span class="json-number">15000</span>
+    },
+    {
+      <span class="json-key">"id"</span>: <span class="json-string">"M12"</span>,
+      <span class="json-key">"containerId"</span>: <span class="json-string">"CONT-5678"</span>,
+      <span class="json-key">"destination"</span>: <span class="json-string">"MAD"</span>,
+      <span class="json-key">"currentWeight"</span>: <span class="json-number">5200</span>,
+      <span class="json-key">"maxWeight"</span>: <span class="json-number">15000</span>
+    }
+  ],
+  <span class="json-key">"expeditions"</span>: [
+    {
+      <span class="json-key">"id"</span>: <span class="json-string">"EBCN001"</span>,
+      <span class="json-key">"origin"</span>: <span class="json-string">"BCN"</span>,
+      <span class="json-key">"destination"</span>: <span class="json-string">"PMI"</span>,
+      <span class="json-key">"pendingParts"</span>: <span class="json-number">12</span>,
+      <span class="json-key">"totalParts"</span>: <span class="json-number">12</span>,
+      <span class="json-key">"totalWeight"</span>: <span class="json-number">1450</span>
+    },
+    {
+      <span class="json-key">"id"</span>: <span class="json-string">"EBCN003"</span>,
+      <span class="json-key">"origin"</span>: <span class="json-string">"MAD"</span>,
+      <span class="json-key">"destination"</span>: <span class="json-string">"BCN"</span>,
+      <span class="json-key">"pendingParts"</span>: <span class="json-number">6</span>,
+      <span class="json-key">"totalParts"</span>: <span class="json-number">10</span>,
+      <span class="json-key">"totalWeight"</span>: <span class="json-number">2200</span>
+    },
+    {
+      <span class="json-key">"id"</span>: <span class="json-string">"EBCN004"</span>,
+      <span class="json-key">"origin"</span>: <span class="json-string">"MAD"</span>,
+      <span class="json-key">"destination"</span>: <span class="json-string">"PMI"</span>,
+      <span class="json-key">"pendingParts"</span>: <span class="json-number">8</span>,
+      <span class="json-key">"totalParts"</span>: <span class="json-number">8</span>,
+      <span class="json-key">"totalWeight"</span>: <span class="json-number">1200</span>
+    }
+  ]
+}</pre>
+
+  <!-- 4. DICCIONARIO -->
+  <h2>4. Diccionario de Datos</h2>
+
+  <h3>4.1. Array <code>docks</code> (Muelles)</h3>
+  <p>Muelles activos de la delegación seleccionada.</p>
+  <table>
+    <tr><th>Campo</th><th>Tipo</th><th>Ejemplo</th><th>Descripción</th></tr>
+    <tr><td><code>id</code></td><td>string</td><td><code>"M01"</code></td><td>Identificador único del muelle en la delegación</td></tr>
+    <tr><td><code>containerId</code></td><td>string</td><td><code>"CONT-4412"</code></td><td>Matrícula del contenedor/remolque actual</td></tr>
+    <tr><td><code>destination</code></td><td>string</td><td><code>"PMI"</code></td><td>Destino final del contenedor. El dashboard infiere el grupo (Baleares/Canarias/Península) con este código.</td></tr>
+    <tr><td><code>currentWeight</code></td><td>number</td><td><code>1250</code></td><td>Peso cargado actualmente (en Kg)</td></tr>
+    <tr><td><code>maxWeight</code></td><td>number</td><td><code>15000</code></td><td>Límite máximo de carga del contenedor (en Kg)</td></tr>
+  </table>
+
+  <h3>4.2. Array <code>expeditions</code> (Expediciones físicas en almacén)</h3>
+  <p>Expediciones físicamente presentes en el almacén de la delegación (Gestor de Almacén).</p>
+  <table>
+    <tr><th>Campo</th><th>Tipo</th><th>Ejemplo</th><th>Descripción</th></tr>
+    <tr><td><code>id</code></td><td>string</td><td><code>"EBCN001"</code></td><td>ID único de la expedición o albarán (comienza con la letra <strong>'E'</strong>)</td></tr>
+    <tr><td><code>origin</code></td><td>string</td><td><code>"MAD"</code></td><td>Delegación de origen de la mercancía</td></tr>
+    <tr><td><code>destination</code></td><td>string</td><td><code>"PMI"</code></td><td>Delegación de destino final de la mercancía</td></tr>
+    <tr><td><code>pendingParts</code></td><td>number</td><td><code>12</code></td><td>Cantidad de partidas pendientes de leer/cargar. El operario escanea etiquetas individuales de bulto que comienzan con la letra <strong>'S'</strong>, decrementando este valor.</td></tr>
+    <tr><td><code>totalParts</code></td><td>number</td><td><code>12</code></td><td>Cantidad total de partidas de la expedición</td></tr>
+    <tr><td><code>totalWeight</code></td><td>number</td><td><code>1450</code></td><td>Peso total de la expedición (en Kg)</td></tr>
+  </table>
+
+  <!-- 5. CASOS ESPECIALES -->
+  <div class="page-break"></div>
+  <h2>5. Casos Especiales de Lógica Logística</h2>
+
+  <div class="alert alert-success">
+    <strong>📍 Caso 1: Reparto Local (Mercancía con destino a la misma Delegación)</strong>
+    Cuando el <code>destination</code> de una expedición coincide con la delegación activa seleccionada (ej. en BCN, una expedición con destino <code>BCN</code> procedente de <code>MAD</code>), se trata de mercancía de reparto local.
+    <br><br>
+    El dashboard agrupa automáticamente estas expediciones en una columna destacada llamada <strong>"REPARTO [DELEGACIÓN]"</strong> en un color naranja distintivo. A nivel de ERP, la lectura del código de barras de estas partidas las asocia a una <strong>Hoja de Ruta (H.R.)</strong> donde comienza su conteo regresivo de carga, a diferencia del resto de expediciones que se cargan en contenedores físicos en los muelles de salida.
+  </div>
+
+  <div class="alert alert-info">
+    <strong>✈️ Caso 2: Mercancía en Tránsito (Transbordos)</strong>
+    Si estamos en la delegación BCN y visualizamos una expedición con <code>origin: "MAD"</code> y <code>destination: "PMI"</code>, el dashboard interpretará que es mercancía en tránsito. 
+    <br><br>
+    Se visualizará en la columna de destino <strong>"PMI"</strong> y su tarjeta indicará la ruta <strong>MAD &rarr; PMI</strong> en la descripción, permitiendo identificar rápidamente que proviene de otra delegación.
+  </div>
+
+  <!-- 6. GRUPOS DE MUELLES -->
+  <h2>6. Agrupaciones Visuales de Muelles</h2>
+  <p>El dashboard agrupa los muelles en 3 secciones principales según el código del <code>destination</code>:</p>
+  <table>
+    <tr><th>Grupo</th><th>Destinos Asociados</th></tr>
+    <tr><td><strong>BALEARES</strong></td><td><code>PMI</code>, <code>IBZ</code>, <code>MAH</code>, <code>FOR</code></td></tr>
+    <tr><td><strong>CANARIAS</strong></td><td><code>LPA</code>, <code>SCT</code>, <code>ACE</code>, <code>FUE</code>, <code>SSG</code>, <code>HIE</code>, <code>SPC</code></td></tr>
+    <tr><td><strong>PENÍNSULA</strong></td><td><code>BCN</code>, <code>MAD</code>, <code>SVQ</code>, <code>ALC</code>, <code>BIO</code>, <code>VGO</code>, <code>VLC</code></td></tr>
+  </table>
+
+  <!-- 7. SEMÁFORO -->
+  <h2>7. Alertas Visuales (Andon)</h2>
+  <div class="semaphore">
+    <div class="sem-box">
+      <h4>🏗️ Muelles (Ocupación de Peso)</h4>
+      <div class="sem-item"><span class="dot dot-blue"></span> Ocupación &lt; 85% &rarr; Normal</div>
+      <div class="sem-item"><span class="dot dot-orange"></span> Ocupación 85-94% &rarr; Alerta Peso</div>
+      <div class="sem-item"><span class="dot dot-green"></span> Ocupación &ge; 95% &rarr; Contenedor Completo</div>
+    </div>
+    <div class="sem-box">
+      <h4>📦 Expediciones (Integridad de Partida)</h4>
+      <div class="sem-item"><span class="dot dot-gray"></span> pendingParts == totalParts &rarr; Sin comenzar</div>
+      <div class="sem-item"><span class="dot dot-red"></span> pendingParts &lt; totalParts &rarr; <strong>Parcial (Pulsante)</strong></div>
+      <div class="sem-item"><span class="dot dot-green"></span> pendingParts == 0 &rarr; Cargada (Se oculta)</div>
+    </div>
+  </div>
+
+  <!-- 8. CHECKLIST -->
+  <h2>8. Checklist de Integración para Sistemas</h2>
+  <ul class="checklist">
+    <li>Implementar <code>GET /api/v1/logistics/zones</code> devolviendo las delegaciones disponibles en el ERP.</li>
+    <li>Implementar <code>GET /api/v1/warehouse/status?delegation=[CODIGO]</code> devolviendo muelles y expediciones físicas de dicha delegación.</li>
+    <li>Habilitar políticas <strong>CORS</strong> en el servidor web.</li>
+    <li>Asegurar que los muelles devueltos corresponden exactamente a la delegación enviada en el query param.</li>
+    <li>Actualizar en tiempo real el valor de <code>pendingParts</code> y el <code>currentWeight</code> del muelle al registrar escaneos.</li>
+  </ul>
+
+  <!-- FOOTER -->
+  <div class="doc-footer">
+    <p>Dashboard Operativo de Almacén — Especificación API v2.0 — Mayo 2026</p>
+  </div>
+
+</body>
+</html>
