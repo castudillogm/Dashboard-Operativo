@@ -156,14 +156,22 @@ body {
 /* Dock Section */
 .section-docks {
   display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  flex-direction: row;
+  gap: 1.5rem;
 }
 
 .group-container {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  flex: 1;
+  min-width: 0;
+}
+
+@media (max-width: 1024px) {
+  .section-docks {
+    flex-direction: column;
+  }
 }
 
 .group-header {
