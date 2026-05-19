@@ -7,8 +7,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
-  <script type="module" crossorigin src="/Dashboard-Operativo/assets/index-DdxiRSbu.js"></script>
-  <link rel="stylesheet" crossorigin href="/Dashboard-Operativo/assets/index-Dc0sGU5Y.css">
+  <script type="module" crossorigin src="/Dashboard-Operativo/assets/index-CnP8Cqfc.js"></script>
+  <link rel="stylesheet" crossorigin href="/Dashboard-Operativo/assets/index-BUDSSeDJ.css">
 </head>
 <body>
   <header class="dashboard-header">
@@ -46,6 +46,13 @@
           <!-- Active docks for Canarias will be rendered here -->
         </div>
       </div>
+
+      <div id="group-peninsula" class="group-container">
+        <div class="group-header">Península [BCN, MAD, SVQ, ALC, BIO, VGO, VLC]</div>
+        <div id="grid-peninsula" class="group-grid">
+          <!-- Active docks for Península will be rendered here -->
+        </div>
+      </div>
     </section>
 
     <!-- SECCIÓN ALMACÉN (CENTER) -->
@@ -53,6 +60,26 @@
       <!-- Dynamic columns by destination will be rendered here -->
     </section>
   </main>
+
+  <!-- PIN AUTHENTICATION MODAL -->
+  <div id="pin-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content" style="max-width: 350px;">
+      <div class="modal-header">
+        <h2>Código de Acceso</h2>
+        <button id="close-pin-modal" class="close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Introduce PIN de Configuración</label>
+          <input type="password" id="pin-input" placeholder="••••" maxlength="8" style="text-align: center; font-size: 1.5rem; letter-spacing: 0.5em;">
+          <div id="pin-error" style="color: var(--accent-red); font-size: 0.75rem; text-align: center; margin-top: 0.5rem; display: none;">Código incorrecto</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="submit-pin" class="save-btn" style="width: 100%;">Acceder</button>
+      </div>
+    </div>
+  </div>
 
   <!-- CONFIGURATION MODAL -->
   <div id="settings-modal" class="modal-overlay" style="display: none;">
@@ -62,6 +89,12 @@
         <button id="close-modal" class="close-btn">&times;</button>
       </div>
       <div class="modal-body">
+        <div class="form-group">
+          <label>Delegación Activa (Origen)</label>
+          <select id="api-delegation">
+            <!-- Dynamically loaded from ERP or Mock -->
+          </select>
+        </div>
         <div class="form-group">
           <label>Modo de Operación</label>
           <select id="api-mode">
@@ -76,6 +109,10 @@
         <div class="form-group">
           <label>Intervalo de Refresco (segundos)</label>
           <input type="number" id="api-interval" value="3" min="1">
+        </div>
+        <div class="form-group">
+          <label>Cambiar PIN de Acceso</label>
+          <input type="password" id="settings-pin" placeholder="Nuevo PIN (ej. 2026)">
         </div>
       </div>
       <div class="modal-footer">
