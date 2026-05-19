@@ -254,7 +254,7 @@ function renderDocks() {
         </div>
         <div class="weight-info">
           <span><span class="weight-current">0</span> kg <span class="occupancy-text" style="font-size: 0.7rem; color: var(--text-secondary); margin-left: 0.25rem;"></span></span>
-          <span class="weight-max">OBJ: ${isPending ? '--' : maxWeight.toLocaleString()} kg (${dock.teus || 2} TEUS)</span>
+          <span class="weight-max">OBJ: ${isPending ? '--' : maxWeight.toLocaleString()} kg</span>
         </div>
         <div class="progress-container">
           <div class="progress-bar ${statusClass}" style="width: 0%"></div>
@@ -296,7 +296,7 @@ function renderDocks() {
       weightEl.textContent = expectedWeight;
     }
     
-    const expectedMaxText = `OBJ: ${isPending ? '--' : maxWeight.toLocaleString()} kg (${dock.teus || 2} TEUS)`;
+    const expectedMaxText = `OBJ: ${isPending ? '--' : maxWeight.toLocaleString()} kg`;
     if (maxWeightEl.textContent !== expectedMaxText) {
       maxWeightEl.textContent = expectedMaxText;
     }
