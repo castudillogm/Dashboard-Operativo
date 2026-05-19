@@ -221,7 +221,8 @@ function renderDocks() {
   state.docks.forEach(dock => {
     let card = document.getElementById(`dock-${dock.id}`);
     const isPending = !dock.destination || !dock.tripId;
-    const maxWeight = isPending ? 0 : (dock.teus || 2) * (dock.targetWeightPerTeu || 10300);
+    const targetWeightVal = (dock.targetWeightPerTeu !== undefined && dock.targetWeightPerTeu !== null) ? dock.targetWeightPerTeu : 10300;
+    const maxWeight = isPending ? 0 : (dock.teus || 2) * targetWeightVal;
     const percentage = maxWeight > 0 ? (dock.currentWeight / maxWeight) * 100 : 0;
     
     let statusClass = 'normal';

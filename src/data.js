@@ -122,7 +122,8 @@ export function simulateScan(state, activeDelegation) {
     // Perform "Loading" event (container loading)
     exp.pendingParts--;
     dock.currentWeight += Math.floor(Math.random() * 200) + 50; // Random weight per item
-    const maxWeight = (dock.teus || 2) * (dock.targetWeightPerTeu || 10300);
+    const targetWeightVal = (dock.targetWeightPerTeu !== undefined && dock.targetWeightPerTeu !== null) ? dock.targetWeightPerTeu : 10300;
+    const maxWeight = (dock.teus || 2) * targetWeightVal;
     if (dock.currentWeight > maxWeight) dock.currentWeight = maxWeight;
   } else if (exp.destination === activeDelegation) {
     // Reparto expedition: load/associate to Route Sheet (Hoja de Ruta)
