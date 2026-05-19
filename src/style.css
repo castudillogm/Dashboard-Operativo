@@ -208,6 +208,24 @@ body {
   border-color: var(--accent-blue);
 }
 
+.dock-card.pending {
+  border: 1px dashed var(--text-secondary);
+  background: var(--bg-secondary);
+  opacity: 0.65;
+}
+
+.dock-card.pending:hover {
+  border-color: var(--text-secondary);
+}
+
+.dock-card.pending .destination-badge {
+  display: none !important;
+}
+
+.dock-card.pending .progress-bar {
+  background: var(--text-secondary) !important;
+}
+
 .dock-header {
   display: flex;
   justify-content: space-between;

@@ -5,6 +5,7 @@ let state = null;
 let pollingInterval = null;
 
 // Elements
+const gridPending = document.getElementById('grid-pending');
 const gridBaleares = document.getElementById('grid-baleares');
 const gridCanarias = document.getElementById('grid-canarias');
 const gridPeninsula = document.getElementById('grid-peninsula');
@@ -146,6 +147,7 @@ async function init() {
 
   // Clear current HTML nodes (to avoid leftovers on delegation switch)
   function clearGrids() {
+    gridPending.innerHTML = '';
     gridBaleares.innerHTML = '';
     gridCanarias.innerHTML = '';
     gridPeninsula.innerHTML = '';
@@ -210,7 +212,7 @@ function renderDocks() {
   const currentDockIds = state.docks.map(dock => `dock-${dock.id}`);
   
   // Cleanup old docks not present in the current delegation's state
-  [gridBaleares, gridCanarias, gridPeninsula].forEach(grid => {
+  [gridPending, gridBaleares, gridCanarias, gridPeninsula].forEach(grid => {
     Array.from(grid.children).forEach(child => {
       if (!currentDockIds.includes(child.id)) child.remove();
     });
@@ -218,16 +220,26 @@ function renderDocks() {
 
   state.docks.forEach(dock => {
     let card = document.getElementById(`dock-${dock.id}`);
-    const percentage = (dock.currentWeight / dock.maxWeight) * 100;
+    const isPending = !dock.destination || !dock.tripId;
+    const maxWeight = isPending ? 0 : (dock.teus || 2) * (dock.targetWeightPerTeu || 10300);
+    const percentage = maxWeight > 0 ? (dock.currentWeight / maxWeight) * 100 : 0;
     
     let statusClass = 'normal';
-    if (percentage >= 95) statusClass = 'critical';
+    if (isPending) statusClass = 'pending';
+    else if (percentage >= 95) statusClass = 'critical';
     else if (percentage >= 85) statusClass = 'warning';
+
+    const group = getDestinationGroup(dock.destination);
+    const targetGrid = group === 'PENDING'
+      ? gridPending
+      : (group === 'BALEARES' 
+        ? gridBaleares 
+        : (group === 'CANARIAS' ? gridCanarias : gridPeninsula));
 
     if (!card) {
       card = document.createElement('div');
       card.id = `dock-${dock.id}`;
-      card.className = 'dock-card fade-in';
+      card.className = `dock-card ${isPending ? 'pending' : ''} fade-in`;
       card.addEventListener('animationend', () => {
         card.classList.remove('fade-in');
       }, { once: true });
@@ -237,32 +249,55 @@ function renderDocks() {
             <span class="container-id">${dock.containerId}</span>
             <span class="muelle-id">MUELLE: ${dock.id}</span>
           </div>
-          <span class="destination-badge">${dock.destination}</span>
+          <span class="destination-badge">${dock.destination || ''}</span>
         </div>
         <div class="weight-info">
-          <span><span class="weight-current">0</span> kg <span class="occupancy-text" style="font-size: 0.7rem; color: var(--text-secondary); margin-left: 0.25rem;">(0%)</span></span>
-          <span class="weight-max">OBJ: ${dock.maxWeight.toLocaleString()} kg</span>
+          <span><span class="weight-current">0</span> kg <span class="occupancy-text" style="font-size: 0.7rem; color: var(--text-secondary); margin-left: 0.25rem;"></span></span>
+          <span class="weight-max">OBJ: ${isPending ? '--' : maxWeight.toLocaleString()} kg (${dock.teus || 2} TEUS)</span>
         </div>
         <div class="progress-container">
           <div class="progress-bar ${statusClass}" style="width: 0%"></div>
         </div>
       `;
       
-      const group = getDestinationGroup(dock.destination);
-      const targetGrid = group === 'BALEARES' 
-        ? gridBaleares 
-        : (group === 'CANARIAS' ? gridCanarias : gridPeninsula);
-        
       targetGrid.appendChild(card);
+    } else {
+      // If card exists, make sure it is in the correct parent grid
+      if (card.parentElement !== targetGrid) {
+        targetGrid.appendChild(card);
+      }
     }
 
     // Target specific updates
+    const containerIdEl = card.querySelector('.container-id');
+    const destBadgeEl = card.querySelector('.destination-badge');
     const weightEl = card.querySelector('.weight-current');
+    const maxWeightEl = card.querySelector('.weight-max');
     const barEl = card.querySelector('.progress-bar');
     const textEl = card.querySelector('.occupancy-text');
 
-    if (weightEl.textContent !== dock.currentWeight.toLocaleString()) {
-      weightEl.textContent = dock.currentWeight.toLocaleString();
+    if (containerIdEl.textContent !== dock.containerId) {
+      containerIdEl.textContent = dock.containerId;
+    }
+    
+    const expectedDest = dock.destination || '';
+    if (destBadgeEl.textContent !== expectedDest) {
+      destBadgeEl.textContent = expectedDest;
+    }
+
+    const expectedCardClass = isPending ? 'dock-card pending' : 'dock-card';
+    if (card.className !== expectedCardClass && !card.classList.contains('fade-in')) {
+      card.className = expectedCardClass;
+    }
+
+    const expectedWeight = dock.currentWeight.toLocaleString();
+    if (weightEl.textContent !== expectedWeight) {
+      weightEl.textContent = expectedWeight;
+    }
+    
+    const expectedMaxText = `OBJ: ${isPending ? '--' : maxWeight.toLocaleString()} kg (${dock.teus || 2} TEUS)`;
+    if (maxWeightEl.textContent !== expectedMaxText) {
+      maxWeightEl.textContent = expectedMaxText;
     }
     
     const targetWidth = `${Math.min(percentage, 100)}%`;
@@ -275,16 +310,20 @@ function renderDocks() {
       barEl.className = targetClass;
     }
     
-    const targetText = `(${percentage.toFixed(1)}%)`;
+    const targetText = isPending ? '' : `(${percentage.toFixed(1)}%)`;
     if (textEl.textContent !== targetText) {
       textEl.textContent = targetText;
     }
   });
 
   // Toggle visibility of group sections based on grid contents
+  const groupPending = document.getElementById('group-pending');
   const groupBaleares = document.getElementById('group-baleares');
   const groupCanarias = document.getElementById('group-canarias');
   const groupPeninsula = document.getElementById('group-peninsula');
+
+  const showPending = gridPending.children.length ? 'flex' : 'none';
+  if (groupPending.style.display !== showPending) groupPending.style.display = showPending;
 
   const showBaleares = gridBaleares.children.length ? 'flex' : 'none';
   if (groupBaleares.style.display !== showBaleares) groupBaleares.style.display = showBaleares;
