@@ -337,15 +337,11 @@ function renderDocks() {
 }
 
 function renderWarehouse() {
-  // Find all destinations present in active (non-completed) expeditions
-  const activeExpeditions = state.expeditions.filter(e => e.pendingParts > 0);
+  // Find all destinations present in active (non-completed) expeditions, excluding local delivery (reparto)
+  const activeExpeditions = state.expeditions.filter(e => e.pendingParts > 0 && e.destination !== config.delegation);
   
-  // Sort destinations, placing current delegation (reparto) last, then alphabetical
-  const destinations = [...new Set(activeExpeditions.map(e => e.destination))].sort((a, b) => {
-    if (a === config.delegation) return 1;
-    if (b === config.delegation) return -1;
-    return a.localeCompare(b);
-  });
+  // Sort destinations alphabetically
+  const destinations = [...new Set(activeExpeditions.map(e => e.destination))].sort((a, b) => a.localeCompare(b));
 
   // Cleanup old columns that are no longer in the destinations list
   const activeColumnIds = destinations.map(dest => `col-${dest}`);
@@ -356,18 +352,17 @@ function renderWarehouse() {
   destinations.forEach((dest, index) => {
     let column = document.getElementById(`col-${dest}`);
     const destExpeditions = activeExpeditions.filter(e => e.destination === dest);
-    const isReparto = dest === config.delegation;
     
     if (!column) {
       column = document.createElement('div');
       column.id = `col-${dest}`;
-      column.className = `warehouse-column fade-in ${isReparto ? 'reparto-column' : ''}`;
+      column.className = 'warehouse-column fade-in';
       column.addEventListener('animationend', () => {
         column.classList.remove('fade-in');
       }, { once: true });
       column.innerHTML = `
         <div class="column-header">
-          <span class="column-dest">${isReparto ? `REPARTO ${dest}` : dest}</span>
+          <span class="column-dest">${dest}</span>
           <div class="column-stats">
             <span class="stat-badge count">0 EXP</span>
             <span class="stat-badge weight">0 kg</span>

@@ -109,8 +109,8 @@ export function simulateScan(state, activeDelegation) {
     }
   }
 
-  // 2. Find a partial expedition or any random expedition
-  const partials = state.expeditions.filter(e => e.pendingParts > 0);
+  // 2. Find a partial expedition or any random expedition (excluding local delivery)
+  const partials = state.expeditions.filter(e => e.pendingParts > 0 && e.destination !== activeDelegation);
   if (partials.length === 0) return state;
 
   const exp = partials[Math.floor(Math.random() * partials.length)];
@@ -125,9 +125,6 @@ export function simulateScan(state, activeDelegation) {
     const targetWeightVal = (dock.targetWeightPerTeu !== undefined && dock.targetWeightPerTeu !== null) ? dock.targetWeightPerTeu : 10300;
     const maxWeight = (dock.teus || 2) * targetWeightVal;
     if (dock.currentWeight > maxWeight) dock.currentWeight = maxWeight;
-  } else if (exp.destination === activeDelegation) {
-    // Reparto expedition: load/associate to Route Sheet (Hoja de Ruta)
-    exp.pendingParts--;
   }
 
   return { ...state };

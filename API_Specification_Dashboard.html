@@ -380,22 +380,15 @@
   <div class="page-break"></div>
   <h2>5. Casos Especiales de Lógica Logística</h2>
 
-  <div class="alert alert-success">
-    <strong>📍 Caso 1: Reparto Local (Mercancía con destino a la misma Delegación)</strong>
-    Cuando el <code>destination</code> de una expedición coincide con la delegación activa seleccionada (ej. en BCN, una expedición con destino <code>BCN</code> procedente de <code>MAD</code>), se trata de mercancía de reparto local.
-    <br><br>
-    El dashboard agrupa automáticamente estas expediciones en una columna destacada llamada <strong>"REPARTO [DELEGACIÓN]"</strong> en un color naranja distintivo. A nivel de ERP, la lectura del código de barras de estas partidas las asocia a una <strong>Hoja de Ruta (H.R.)</strong> donde comienza su conteo regresivo de carga, a diferencia del resto de expediciones que se cargan en contenedores físicos en los muelles de salida.
-  </div>
-
   <div class="alert alert-info">
-    <strong>✈️ Caso 2: Mercancía en Tránsito (Transbordos)</strong>
+    <strong>✈️ Caso 1: Mercancía en Tránsito (Transbordos)</strong>
     Si estamos en la delegación BCN y visualizamos una expedición con <code>origin: "MAD"</code> y <code>destination: "PMI"</code>, el dashboard interpretará que es mercancía en tránsito. 
     <br><br>
     Se visualizará en la columna de destino <strong>"PMI"</strong> y su tarjeta indicará la ruta <strong>MAD &rarr; PMI</strong> en la descripción, permitiendo identificar rápidamente que proviene de otra delegación.
   </div>
 
   <div class="alert alert-warning" style="background-color: rgba(128,128,128,0.1); border-left: 4px solid var(--text-secondary); padding: 1rem; border-radius: 4px; margin-top: 1rem;">
-    <strong>🔗 Caso 3: Contenedor Acoplado Sin Destino (Estancia Pendiente)</strong>
+    <strong>🔗 Caso 2: Contenedor Acoplado Sin Destino (Estancia Pendiente)</strong>
     Cuando un contenedor físico es acoplado al muelle, el ERP crea una estancia. Si esta estancia no tiene asignado aún un viaje ni destino (<code>destination: null</code> y <code>tripId: null</code>), el dashboard muestra el muelle en la sección superior llamada <strong>"Acoplados Sin Destino"</strong>.
     <br><br>
     El contenedor se dibuja en un tono gris neutro con borde discontinuo, se oculta la bandera de destino y el objetivo de peso se muestra como <code>OBJ: -- kg</code>.
