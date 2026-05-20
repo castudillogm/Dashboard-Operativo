@@ -575,13 +575,6 @@ body {
   border-radius: 4px;
 }
 
-.import-exp-item.completed {
-  text-decoration: line-through;
-  opacity: 0.45;
-  color: var(--text-secondary);
-  background: transparent;
-}
-
 .import-exp-id {
   font-weight: 600;
   font-family: var(--font-mono);

@@ -384,8 +384,10 @@ function renderDocks() {
       const unloadedImportParts = totalImportParts - pendingImportParts;
       const importPercentage = totalImportParts > 0 ? (unloadedImportParts / totalImportParts) * 100 : 0;
 
-      const expsHtml = (dock.expeditions || []).map(exp => `
-        <div class="import-exp-item ${exp.pendingParts === 0 ? 'completed' : ''}">
+      const expsHtml = (dock.expeditions || [])
+        .filter(exp => exp.pendingParts > 0)
+        .map(exp => `
+        <div class="import-exp-item">
           <span class="import-exp-id">${exp.id}</span>
           <span class="import-exp-route">${exp.origin} &rarr; ${exp.destination}</span>
           <span class="import-exp-counter">${exp.pendingParts}/${exp.totalParts} P.</span>
