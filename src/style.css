@@ -520,18 +520,92 @@ body {
   background: var(--text-secondary);
 }
 
-/* Reparto Column Styling */
-.warehouse-column.reparto-column {
-  border-color: var(--accent-orange);
-  box-shadow: 0 0 12px rgba(245, 158, 11, 0.15);
+/* Import Docks and Closed States */
+.dock-card.closed {
+  border: 1px solid var(--border-color);
+  opacity: 0.65;
+  background: var(--bg-secondary);
 }
-.warehouse-column.reparto-column .column-header {
-  background: rgba(245, 158, 11, 0.08);
-  border-bottom: 2px solid var(--accent-orange);
+.dock-card.closed:hover {
+  border-color: var(--border-color);
 }
-.warehouse-column.reparto-column .column-dest {
-  color: var(--accent-orange);
-  font-weight: 800;
+.closed-banner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-12deg);
+  background: rgba(40, 40, 40, 0.95);
+  color: #ff3b30;
+  border: 2px solid #ff3b30;
+  padding: 0.25rem 0.5rem;
+  font-weight: 900;
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  border-radius: 4px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+  pointer-events: none;
+  text-transform: uppercase;
+  z-index: 10;
+}
+[data-theme="light"] .closed-banner {
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.destination-badge.import-badge {
+  background: #8b5cf6;
+}
+
+.import-expeditions-list {
+  margin-top: 0.4rem;
+  margin-bottom: 0.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  border-top: 1px solid var(--border-color);
+  padding-top: 0.4rem;
+  max-height: 90px;
+  overflow-y: auto;
+}
+
+.import-exp-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.75rem;
+  color: var(--text-primary);
+  background: rgba(128, 128, 128, 0.05);
+  padding: 0.15rem 0.35rem;
+  border-radius: 4px;
+}
+
+.import-exp-item.completed {
+  text-decoration: line-through;
+  opacity: 0.45;
+  color: var(--text-secondary);
+  background: transparent;
+}
+
+.import-exp-id {
+  font-weight: 600;
+  font-family: var(--font-mono);
+}
+
+.import-exp-route {
+  color: var(--text-secondary);
+  font-size: 0.65rem;
+}
+
+.import-exp-counter {
+  font-family: var(--font-mono);
+  font-weight: 700;
+}
+
+.progress-bar.import-bar.active-import {
+  background-color: #8b5cf6;
+}
+
+.progress-bar.import-bar.closed {
+  background-color: var(--text-secondary);
 }
 
 /* Expedition routing details */

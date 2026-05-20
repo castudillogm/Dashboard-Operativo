@@ -33,16 +33,29 @@ export function getDestinationGroup(code) {
 const mockStates = {
   BCN: {
     docks: [
-      { id: 'M01', containerId: 'CONT-4412', destination: 'PMI', currentWeight: 1250, teus: 2, targetWeightPerTeu: 10300, tripId: 'VBCN00001' },
-      { id: 'M05', containerId: 'CONT-8890', destination: 'LPA', currentWeight: 8400, teus: 1, targetWeightPerTeu: 10300, tripId: 'VBCN00002' },
-      { id: 'M09', containerId: 'CONT-1234', destination: 'IBZ', currentWeight: 200, teus: 2, targetWeightPerTeu: 8000, tripId: 'VBCN00003' },
-      { id: 'M12', containerId: 'CONT-5678', destination: 'MAD', currentWeight: 5200, teus: 2, targetWeightPerTeu: 10300, tripId: 'VBCN00004' },
-      { id: 'M15', containerId: 'CONT-9999', destination: '', currentWeight: 0, teus: 2, targetWeightPerTeu: 0, tripId: '' } // Pending container
+      { id: 'M01', containerId: 'CONT-4412', destination: 'PMI', currentWeight: 1250, teus: 2, targetWeightPerTeu: 10300, tripId: 'VBCN00001', status: 'active' },
+      { id: 'M05', containerId: 'CONT-8890', destination: 'LPA', currentWeight: 8400, teus: 1, targetWeightPerTeu: 10300, tripId: 'VBCN00002', status: 'active' },
+      { id: 'M09', containerId: 'CONT-1234', destination: 'IBZ', currentWeight: 200, teus: 2, targetWeightPerTeu: 8000, tripId: 'VBCN00003', status: 'active' },
+      { 
+        id: 'M12', 
+        containerId: 'CONT-5678', 
+        destination: 'BCN', 
+        currentWeight: 5200, 
+        teus: 2, 
+        targetWeightPerTeu: 0, 
+        tripId: 'VMAD99999', 
+        status: 'active',
+        expeditions: [
+          { id: 'EMAD881', origin: 'MAD', destination: 'BCN', pendingParts: 5, totalParts: 8, totalWeight: 1500 },
+          { id: 'EMAD882', origin: 'MAD', destination: 'BCN', pendingParts: 3, totalParts: 10, totalWeight: 2000 }
+        ]
+      },
+      { id: 'M15', containerId: 'CONT-9999', destination: '', currentWeight: 0, teus: 2, targetWeightPerTeu: 0, tripId: '', status: 'pending' },
+      { id: 'M16', containerId: '', destination: '', currentWeight: 0, teus: 2, targetWeightPerTeu: 0, tripId: '', status: 'pending' } // Empty muelle
     ],
     expeditions: [
       { id: 'EBCN001', origin: 'BCN', destination: 'PMI', pendingParts: 12, totalParts: 12, totalWeight: 1450 },
       { id: 'EBCN002', origin: 'BCN', destination: 'PMI', pendingParts: 5, totalParts: 8, totalWeight: 920 },
-      { id: 'EBCN003', origin: 'MAD', destination: 'BCN', pendingParts: 6, totalParts: 10, totalWeight: 2200 }, // Reparto BCN from MAD
       { id: 'EBCN004', origin: 'MAD', destination: 'PMI', pendingParts: 8, totalParts: 8, totalWeight: 1200 },  // Transit
       { id: 'EBCN005', origin: 'BCN', destination: 'LPA', pendingParts: 15, totalParts: 30, totalWeight: 5400 },
       { id: 'EBCN006', origin: 'BCN', destination: 'MAH', pendingParts: 8, totalParts: 8, totalWeight: 850 },
@@ -51,16 +64,26 @@ const mockStates = {
   },
   MAD: {
     docks: [
-      { id: 'M01', containerId: 'CONT-MAD1', destination: 'BCN', currentWeight: 4500, teus: 2, targetWeightPerTeu: 10300, tripId: 'VMAD00001' },
-      { id: 'M02', containerId: 'CONT-MAD2', destination: 'PMI', currentWeight: 9800, teus: 2, targetWeightPerTeu: 10300, tripId: 'VMAD00002' },
-      { id: 'M03', containerId: 'CONT-MAD3', destination: 'VLC', currentWeight: 2300, teus: 2, targetWeightPerTeu: 9000, tripId: 'VMAD00003' },
-      { id: 'M04', containerId: 'CONT-MAD4', destination: '', currentWeight: 0, teus: 1, targetWeightPerTeu: 0, tripId: '' } // Pending container
+      { id: 'M01', containerId: 'CONT-MAD1', destination: 'BCN', currentWeight: 4500, teus: 2, targetWeightPerTeu: 10300, tripId: 'VMAD00001', status: 'active' },
+      { 
+        id: 'M02', 
+        containerId: 'CONT-MAD2', 
+        destination: 'MAD', 
+        currentWeight: 9800, 
+        teus: 2, 
+        targetWeightPerTeu: 0, 
+        tripId: 'VBCN77777', 
+        status: 'active',
+        expeditions: [
+          { id: 'EBCN771', origin: 'BCN', destination: 'MAD', pendingParts: 6, totalParts: 12, totalWeight: 2200 }
+        ]
+      },
+      { id: 'M03', containerId: 'CONT-MAD3', destination: 'VLC', currentWeight: 2300, teus: 2, targetWeightPerTeu: 9000, tripId: 'VMAD00003', status: 'active' },
+      { id: 'M04', containerId: '', destination: '', currentWeight: 0, teus: 1, targetWeightPerTeu: 0, tripId: '', status: 'pending' } // Empty muelle
     ],
     expeditions: [
       { id: 'EMAD001', origin: 'MAD', destination: 'BCN', pendingParts: 20, totalParts: 20, totalWeight: 4500 },
-      { id: 'EMAD002', origin: 'BCN', destination: 'MAD', pendingParts: 4, totalParts: 6, totalWeight: 1100 }, // Reparto MAD from BCN
-      { id: 'EMAD003', origin: 'MAD', destination: 'PMI', pendingParts: 12, totalParts: 15, totalWeight: 1800 },
-      { id: 'EMAD004', origin: 'SVQ', destination: 'MAD', pendingParts: 2, totalParts: 2, totalWeight: 300 }   // Reparto MAD from SVQ
+      { id: 'EMAD003', origin: 'MAD', destination: 'PMI', pendingParts: 12, totalParts: 15, totalWeight: 1800 }
     ]
   }
 };
@@ -68,63 +91,150 @@ const mockStates = {
 // Generates dynamic state for other delegations
 export function getMockState(delegation) {
   if (!mockStates[delegation]) {
-    // Generate default docks & expeditions for the requested delegation
     const possibleDests = DELEGATIONS
       .map(d => d.code)
       .filter(code => code !== delegation);
     
     mockStates[delegation] = {
       docks: [
-        { id: 'M01', containerId: `CONT-${delegation}1`, destination: possibleDests[0] || 'PMI', currentWeight: 1000, teus: 2, targetWeightPerTeu: 10300, tripId: `V${delegation}00001` },
-        { id: 'M02', containerId: `CONT-${delegation}2`, destination: possibleDests[1] || 'LPA', currentWeight: 3000, teus: 1, targetWeightPerTeu: 10300, tripId: `V${delegation}00002` },
-        { id: 'M03', containerId: `CONT-${delegation}3`, destination: '', currentWeight: 0, teus: 2, targetWeightPerTeu: 0, tripId: '' }
+        { id: 'M01', containerId: `CONT-${delegation}1`, destination: possibleDests[0] || 'PMI', currentWeight: 1000, teus: 2, targetWeightPerTeu: 10300, tripId: `V${delegation}00001`, status: 'active' },
+        { 
+          id: 'M02', 
+          containerId: `CONT-${delegation}2`, 
+          destination: delegation, 
+          currentWeight: 4000, 
+          teus: 2, 
+          targetWeightPerTeu: 0, 
+          tripId: `V${possibleDests[1] || 'MAD'}00002`, 
+          status: 'active',
+          expeditions: [
+            { id: `E${possibleDests[1] || 'MAD'}991`, origin: possibleDests[1] || 'MAD', destination: delegation, pendingParts: 4, totalParts: 8, totalWeight: 1200 },
+            { id: `E${possibleDests[1] || 'MAD'}992`, origin: possibleDests[1] || 'MAD', destination: delegation, pendingParts: 2, totalParts: 6, totalWeight: 800 }
+          ]
+        },
+        { id: 'M03', containerId: `CONT-${delegation}3`, destination: '', currentWeight: 0, teus: 2, targetWeightPerTeu: 0, tripId: '', status: 'pending' },
+        { id: 'M04', containerId: '', destination: '', currentWeight: 0, teus: 2, targetWeightPerTeu: 0, tripId: '', status: 'pending' }
       ],
       expeditions: [
         { id: `E${delegation}001`, origin: delegation, destination: possibleDests[0] || 'PMI', pendingParts: 10, totalParts: 10, totalWeight: 1500 },
-        { id: `E${delegation}002`, origin: delegation, destination: possibleDests[1] || 'LPA', pendingParts: 5, totalParts: 8, totalWeight: 900 },
-        { id: `E${delegation}003`, origin: possibleDests[2] || 'MAD', destination: delegation, pendingParts: 4, totalParts: 4, totalWeight: 600 } // Reparto
+        { id: `E${delegation}002`, origin: delegation, destination: possibleDests[1] || 'LPA', pendingParts: 5, totalParts: 8, totalWeight: 900 }
       ]
     };
   }
   return mockStates[delegation];
 }
 
-// Simulation helper: Simulates a scan event
+// Simulation helper: Simulates container lifecycles and scan events
 export function simulateScan(state, activeDelegation) {
-  // 1. 5% chance to assign destination (plazaDestino/Viaje Export) to a pending container
-  if (Math.random() < 0.05) {
-    const pendingDock = state.docks.find(d => !d.destination);
-    if (pendingDock) {
-      const activeDockDests = state.docks.map(d => d.destination).filter(Boolean);
-      const openDests = state.expeditions
-        .map(e => e.destination)
-        .filter(dest => dest !== activeDelegation && !activeDockDests.includes(dest));
-      
-      if (openDests.length > 0) {
-        pendingDock.destination = openDests[Math.floor(Math.random() * openDests.length)];
-        pendingDock.tripId = `V${activeDelegation}${Math.floor(Math.random() * 90000) + 10000}`;
-        pendingDock.targetWeightPerTeu = 10300;
-        pendingDock.currentWeight = 0;
+  const possibleOrigins = DELEGATIONS.map(d => d.code).filter(c => c !== activeDelegation);
+  const randomOrigin = possibleOrigins[Math.floor(Math.random() * possibleOrigins.length)] || 'MAD';
+
+  // 1. Process Docks Lifecycles (Transitions between states)
+  state.docks.forEach(dock => {
+    // A. Empty muelle -> 5% chance to couple a new empty container
+    if (!dock.containerId) {
+      if (Math.random() < 0.05) {
+        dock.containerId = `CONT-${Math.floor(Math.random() * 9000) + 1000}`;
+        dock.status = 'pending';
+        dock.destination = '';
+        dock.tripId = '';
+        dock.currentWeight = 0;
+        dock.expeditions = [];
+      }
+      return;
+    }
+
+    // B. Pending container -> 5% chance to get assigned a trip
+    if (dock.status === 'pending') {
+      if (Math.random() < 0.05) {
+        // 60% chance Export trip, 40% chance Import trip
+        if (Math.random() < 0.6) {
+          const activeDockDests = state.docks.map(d => d.destination).filter(Boolean);
+          const openDests = state.expeditions
+            .map(e => e.destination)
+            .filter(dest => dest !== activeDelegation && !activeDockDests.includes(dest));
+          
+          const targetDest = openDests.length > 0 
+            ? openDests[Math.floor(Math.random() * openDests.length)]
+            : (possibleOrigins[Math.floor(Math.random() * possibleOrigins.length)] || 'PMI');
+
+          dock.destination = targetDest;
+          dock.tripId = `V${activeDelegation}${Math.floor(Math.random() * 90000) + 10000}`;
+          dock.targetWeightPerTeu = 10300;
+          dock.currentWeight = 0;
+          dock.status = 'active';
+        } else {
+          // Import trip
+          dock.destination = activeDelegation;
+          dock.tripId = `V${randomOrigin}${Math.floor(Math.random() * 90000) + 10000}`;
+          dock.targetWeightPerTeu = 0;
+          dock.currentWeight = 4000 + Math.floor(Math.random() * 5000);
+          dock.status = 'active';
+          dock.expeditions = [
+            { id: `E${randomOrigin}${Math.floor(Math.random() * 900) + 100}`, origin: randomOrigin, destination: activeDelegation, pendingParts: 6, totalParts: 6, totalWeight: 2000 },
+            { id: `E${randomOrigin}${Math.floor(Math.random() * 900) + 100}`, origin: randomOrigin, destination: activeDelegation, pendingParts: 4, totalParts: 4, totalWeight: 1500 }
+          ];
+        }
+      }
+      return;
+    }
+
+    // C. Closed container -> 10% chance to depart (estancia finalizada)
+    if (dock.status === 'closed') {
+      if (Math.random() < 0.1) {
+        // Estancia finalizada: container physically leaves the muelle, muelle becomes empty!
+        dock.containerId = '';
+        dock.destination = '';
+        dock.tripId = '';
+        dock.currentWeight = 0;
+        dock.status = 'pending';
+        dock.expeditions = [];
+      }
+      return;
+    }
+  });
+
+  // 2. Perform Operational Scans (Loading Export or Unloading Import)
+  if (Math.random() < 0.8) {
+    // 50% load export, 50% unload import
+    if (Math.random() < 0.5) {
+      // Export scan
+      const activeExports = state.expeditions.filter(e => e.pendingParts > 0 && e.destination !== activeDelegation);
+      if (activeExports.length > 0) {
+        const exp = activeExports[Math.floor(Math.random() * activeExports.length)];
+        const dock = state.docks.find(d => d.destination === exp.destination && d.status === 'active');
+        if (dock) {
+          exp.pendingParts--;
+          dock.currentWeight += Math.floor(Math.random() * 200) + 50;
+          const targetWeightVal = (dock.targetWeightPerTeu !== undefined && dock.targetWeightPerTeu !== null) ? dock.targetWeightPerTeu : 10300;
+          const maxWeight = (dock.teus || 2) * targetWeightVal;
+          if (dock.currentWeight >= maxWeight) {
+            dock.currentWeight = maxWeight;
+            // 50% chance to close the trip once weight goal is reached
+            if (Math.random() < 0.5) {
+              dock.status = 'closed';
+            }
+          }
+        }
+      }
+    } else {
+      // Import scan (Unloading container)
+      const activeImports = state.docks.filter(d => d.destination === activeDelegation && d.status === 'active');
+      if (activeImports.length > 0) {
+        const dock = activeImports[Math.floor(Math.random() * activeImports.length)];
+        const activeExps = (dock.expeditions || []).filter(e => e.pendingParts > 0);
+        if (activeExps.length > 0) {
+          const exp = activeExps[Math.floor(Math.random() * activeExps.length)];
+          exp.pendingParts--;
+          
+          // Check if unloading completed
+          const remainingParts = (dock.expeditions || []).reduce((sum, e) => sum + e.pendingParts, 0);
+          if (remainingParts === 0) {
+            dock.status = 'closed'; // Completed / Closed trip
+          }
+        }
       }
     }
-  }
-
-  // 2. Find a partial expedition or any random expedition (excluding local delivery)
-  const partials = state.expeditions.filter(e => e.pendingParts > 0 && e.destination !== activeDelegation);
-  if (partials.length === 0) return state;
-
-  const exp = partials[Math.floor(Math.random() * partials.length)];
-  
-  // Find a dock for that destination
-  const dock = state.docks.find(d => d.destination === exp.destination);
-  
-  if (dock) {
-    // Perform "Loading" event (container loading)
-    exp.pendingParts--;
-    dock.currentWeight += Math.floor(Math.random() * 200) + 50; // Random weight per item
-    const targetWeightVal = (dock.targetWeightPerTeu !== undefined && dock.targetWeightPerTeu !== null) ? dock.targetWeightPerTeu : 10300;
-    const maxWeight = (dock.teus || 2) * targetWeightVal;
-    if (dock.currentWeight > maxWeight) dock.currentWeight = maxWeight;
   }
 
   return { ...state };

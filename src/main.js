@@ -6,6 +6,7 @@ let pollingInterval = null;
 
 // Elements
 const gridPending = document.getElementById('grid-pending');
+const gridImport = document.getElementById('grid-import');
 const gridBaleares = document.getElementById('grid-baleares');
 const gridCanarias = document.getElementById('grid-canarias');
 const gridPeninsula = document.getElementById('grid-peninsula');
@@ -148,6 +149,7 @@ async function init() {
   // Clear current HTML nodes (to avoid leftovers on delegation switch)
   function clearGrids() {
     gridPending.innerHTML = '';
+    gridImport.innerHTML = '';
     gridBaleares.innerHTML = '';
     gridCanarias.innerHTML = '';
     gridPeninsula.innerHTML = '';
@@ -212,7 +214,7 @@ function renderDocks() {
   const currentDockIds = state.docks.map(dock => `dock-${dock.id}`);
   
   // Cleanup old docks not present in the current delegation's state
-  [gridPending, gridBaleares, gridCanarias, gridPeninsula].forEach(grid => {
+  [gridPending, gridImport, gridBaleares, gridCanarias, gridPeninsula].forEach(grid => {
     Array.from(grid.children).forEach(child => {
       if (!currentDockIds.includes(child.id)) child.remove();
     });
@@ -221,6 +223,9 @@ function renderDocks() {
   state.docks.forEach(dock => {
     let card = document.getElementById(`dock-${dock.id}`);
     const isPending = !dock.destination || !dock.tripId;
+    const isImport = !isPending && (dock.destination === config.delegation || !!dock.isImport);
+    const isClosed = dock.status === 'closed' || dock.tripStatus === 'closed';
+
     const targetWeightVal = (dock.targetWeightPerTeu !== undefined && dock.targetWeightPerTeu !== null) ? dock.targetWeightPerTeu : 10300;
     const maxWeight = isPending ? 0 : (dock.teus || 2) * targetWeightVal;
     const percentage = maxWeight > 0 ? (dock.currentWeight / maxWeight) * 100 : 0;
@@ -231,36 +236,84 @@ function renderDocks() {
     else if (percentage >= 85) statusClass = 'warning';
 
     const group = getDestinationGroup(dock.destination);
-    const targetGrid = group === 'PENDING'
+    const targetGrid = isPending
       ? gridPending
-      : (group === 'BALEARES' 
-        ? gridBaleares 
-        : (group === 'CANARIAS' ? gridCanarias : gridPeninsula));
+      : (isImport
+        ? gridImport
+        : (group === 'BALEARES' 
+          ? gridBaleares 
+          : (group === 'CANARIAS' ? gridCanarias : gridPeninsula)));
 
-    if (!card) {
-      card = document.createElement('div');
-      card.id = `dock-${dock.id}`;
-      card.className = `dock-card ${isPending ? 'pending' : ''} fade-in`;
+    const expectedType = isPending ? 'pending' : (isImport ? 'import' : 'export');
+
+    if (!card || card.dataset.type !== expectedType || card.dataset.closed !== String(isClosed)) {
+      if (!card) {
+        card = document.createElement('div');
+        card.id = `dock-${dock.id}`;
+      }
+      card.dataset.type = expectedType;
+      card.dataset.closed = String(isClosed);
+      card.className = `dock-card ${isPending ? 'pending' : ''} ${isImport ? 'import' : ''} ${isClosed ? 'closed' : ''} fade-in`;
       card.addEventListener('animationend', () => {
         card.classList.remove('fade-in');
       }, { once: true });
-      card.innerHTML = `
-        <div class="dock-header">
-          <div class="dock-ids">
-            <span class="container-id">${dock.containerId}</span>
-            <span class="muelle-id">MUELLE: ${dock.id}</span>
+
+      if (expectedType === 'pending') {
+        card.innerHTML = `
+          <div class="dock-header">
+            <div class="dock-ids">
+              <span class="container-id">${dock.containerId}</span>
+              <span class="muelle-id">MUELLE: ${dock.id}</span>
+            </div>
+            <span class="destination-badge"></span>
           </div>
-          <span class="destination-badge">${dock.destination || ''}</span>
-        </div>
-        <div class="weight-info">
-          <span><span class="weight-current">0</span> kg <span class="occupancy-text" style="font-size: 0.7rem; color: var(--text-secondary); margin-left: 0.25rem;"></span></span>
-          <span class="weight-max">OBJ: ${isPending ? '--' : maxWeight.toLocaleString()} kg</span>
-        </div>
-        <div class="progress-container">
-          <div class="progress-bar ${statusClass}" style="width: 0%"></div>
-        </div>
-      `;
-      
+          <div class="weight-info">
+            <span><span class="weight-current">0</span> kg <span class="occupancy-text" style="font-size: 0.7rem; color: var(--text-secondary); margin-left: 0.25rem;"></span></span>
+            <span class="weight-max">OBJ: -- kg</span>
+          </div>
+          <div class="progress-container">
+            <div class="progress-bar pending" style="width: 0%"></div>
+          </div>
+        `;
+      } else if (expectedType === 'export') {
+        card.innerHTML = `
+          <div class="dock-header">
+            <div class="dock-ids">
+              <span class="container-id">${dock.containerId}</span>
+              <span class="muelle-id">MUELLE: ${dock.id}</span>
+            </div>
+            <span class="destination-badge">${dock.destination}</span>
+          </div>
+          <div class="weight-info">
+            <span><span class="weight-current">0</span> kg <span class="occupancy-text" style="font-size: 0.7rem; color: var(--text-secondary); margin-left: 0.25rem;"></span></span>
+            <span class="weight-max">OBJ: ${maxWeight.toLocaleString()} kg</span>
+          </div>
+          <div class="progress-container">
+            <div class="progress-bar ${statusClass}" style="width: 0%"></div>
+          </div>
+          ${isClosed ? '<div class="closed-banner">VIAJE CERRADO</div>' : ''}
+        `;
+      } else if (expectedType === 'import') {
+        card.innerHTML = `
+          <div class="dock-header">
+            <div class="dock-ids">
+              <span class="container-id">${dock.containerId}</span>
+              <span class="muelle-id">MUELLE: ${dock.id}</span>
+            </div>
+            <span class="destination-badge import-badge">DESCARGA</span>
+          </div>
+          <div class="import-expeditions-list"></div>
+          <div class="weight-info import-parts-info">
+            <span>PENDIENTE: <span class="import-pending-parts">0</span> / <span class="import-total-parts">0</span> P.</span>
+            <span class="import-unloaded-percentage" style="font-size: 0.7rem; color: var(--text-secondary);">0%</span>
+          </div>
+          <div class="progress-container">
+            <div class="progress-bar import-bar ${isClosed ? 'closed' : 'active-import'}" style="width: 0%"></div>
+          </div>
+          ${isClosed ? '<div class="closed-banner">DESCARGA COMPLETA</div>' : ''}
+        `;
+      }
+
       targetGrid.appendChild(card);
     } else {
       // If card exists, make sure it is in the correct parent grid
@@ -270,61 +323,113 @@ function renderDocks() {
     }
 
     // Target specific updates
-    const containerIdEl = card.querySelector('.container-id');
-    const destBadgeEl = card.querySelector('.destination-badge');
-    const weightEl = card.querySelector('.weight-current');
-    const maxWeightEl = card.querySelector('.weight-max');
-    const barEl = card.querySelector('.progress-bar');
-    const textEl = card.querySelector('.occupancy-text');
+    if (expectedType === 'pending' || expectedType === 'export') {
+      const containerIdEl = card.querySelector('.container-id');
+      const destBadgeEl = card.querySelector('.destination-badge');
+      const weightEl = card.querySelector('.weight-current');
+      const maxWeightEl = card.querySelector('.weight-max');
+      const barEl = card.querySelector('.progress-bar');
+      const textEl = card.querySelector('.occupancy-text');
 
-    if (containerIdEl.textContent !== dock.containerId) {
-      containerIdEl.textContent = dock.containerId;
-    }
-    
-    const expectedDest = dock.destination || '';
-    if (destBadgeEl.textContent !== expectedDest) {
-      destBadgeEl.textContent = expectedDest;
-    }
+      if (containerIdEl.textContent !== dock.containerId) {
+        containerIdEl.textContent = dock.containerId;
+      }
+      
+      const expectedDest = dock.destination || '';
+      if (destBadgeEl && destBadgeEl.textContent !== expectedDest) {
+        destBadgeEl.textContent = expectedDest;
+      }
 
-    const expectedCardClass = isPending ? 'dock-card pending' : 'dock-card';
-    if (card.className !== expectedCardClass && !card.classList.contains('fade-in')) {
-      card.className = expectedCardClass;
-    }
+      const expectedCardClass = `dock-card ${isPending ? 'pending' : ''} ${isClosed ? 'closed' : ''}`;
+      if (card.className !== expectedCardClass && !card.classList.contains('fade-in')) {
+        card.className = expectedCardClass;
+      }
 
-    const expectedWeight = dock.currentWeight.toLocaleString();
-    if (weightEl.textContent !== expectedWeight) {
-      weightEl.textContent = expectedWeight;
-    }
-    
-    const expectedMaxText = `OBJ: ${isPending ? '--' : maxWeight.toLocaleString()} kg`;
-    if (maxWeightEl.textContent !== expectedMaxText) {
-      maxWeightEl.textContent = expectedMaxText;
-    }
-    
-    const targetWidth = `${Math.min(percentage, 100)}%`;
-    if (barEl.style.width !== targetWidth) {
-      barEl.style.width = targetWidth;
-    }
-    
-    const targetClass = `progress-bar ${statusClass}`;
-    if (barEl.className !== targetClass) {
-      barEl.className = targetClass;
-    }
-    
-    const targetText = isPending ? '' : `(${percentage.toFixed(1)}%)`;
-    if (textEl.textContent !== targetText) {
-      textEl.textContent = targetText;
+      const expectedWeight = dock.currentWeight.toLocaleString();
+      if (weightEl.textContent !== expectedWeight) {
+        weightEl.textContent = expectedWeight;
+      }
+      
+      const expectedMaxText = `OBJ: ${isPending ? '--' : maxWeight.toLocaleString()} kg`;
+      if (maxWeightEl.textContent !== expectedMaxText) {
+        maxWeightEl.textContent = expectedMaxText;
+      }
+      
+      const targetWidth = `${Math.min(percentage, 100)}%`;
+      if (barEl.style.width !== targetWidth) {
+        barEl.style.width = targetWidth;
+      }
+      
+      const targetClass = `progress-bar ${statusClass}`;
+      if (barEl.className !== targetClass) {
+        barEl.className = targetClass;
+      }
+      
+      const targetText = isPending ? '' : `(${percentage.toFixed(1)}%)`;
+      if (textEl.textContent !== targetText) {
+        textEl.textContent = targetText;
+      }
+    } else if (expectedType === 'import') {
+      const containerIdEl = card.querySelector('.container-id');
+      const listEl = card.querySelector('.import-expeditions-list');
+      const pendingEl = card.querySelector('.import-pending-parts');
+      const totalEl = card.querySelector('.import-total-parts');
+      const pctEl = card.querySelector('.import-unloaded-percentage');
+      const barEl = card.querySelector('.import-bar');
+
+      if (containerIdEl.textContent !== dock.containerId) {
+        containerIdEl.textContent = dock.containerId;
+      }
+
+      const totalImportParts = (dock.expeditions || []).reduce((sum, e) => sum + e.totalParts, 0);
+      const pendingImportParts = (dock.expeditions || []).reduce((sum, e) => sum + e.pendingParts, 0);
+      const unloadedImportParts = totalImportParts - pendingImportParts;
+      const importPercentage = totalImportParts > 0 ? (unloadedImportParts / totalImportParts) * 100 : 0;
+
+      const expsHtml = (dock.expeditions || []).map(exp => `
+        <div class="import-exp-item ${exp.pendingParts === 0 ? 'completed' : ''}">
+          <span class="import-exp-id">${exp.id}</span>
+          <span class="import-exp-route">${exp.origin} &rarr; ${exp.destination}</span>
+          <span class="import-exp-counter">${exp.pendingParts}/${exp.totalParts} P.</span>
+        </div>
+      `).join('');
+
+      if (listEl.innerHTML !== expsHtml) {
+        listEl.innerHTML = expsHtml;
+      }
+
+      if (pendingEl.textContent !== String(pendingImportParts)) {
+        pendingEl.textContent = String(pendingImportParts);
+      }
+
+      if (totalEl.textContent !== String(totalImportParts)) {
+        totalEl.textContent = String(totalImportParts);
+      }
+
+      const expectedPctText = `${importPercentage.toFixed(1)}%`;
+      if (pctEl.textContent !== expectedPctText) {
+        pctEl.textContent = expectedPctText;
+      }
+
+      const targetWidth = `${Math.min(importPercentage, 100)}%`;
+      if (barEl.style.width !== targetWidth) {
+        barEl.style.width = targetWidth;
+      }
     }
   });
 
   // Toggle visibility of group sections based on grid contents
   const groupPending = document.getElementById('group-pending');
+  const groupImport = document.getElementById('group-import');
   const groupBaleares = document.getElementById('group-baleares');
   const groupCanarias = document.getElementById('group-canarias');
   const groupPeninsula = document.getElementById('group-peninsula');
 
   const showPending = gridPending.children.length ? 'flex' : 'none';
   if (groupPending.style.display !== showPending) groupPending.style.display = showPending;
+
+  const showImport = gridImport.children.length ? 'flex' : 'none';
+  if (groupImport.style.display !== showImport) groupImport.style.display = showImport;
 
   const showBaleares = gridBaleares.children.length ? 'flex' : 'none';
   if (groupBaleares.style.display !== showBaleares) groupBaleares.style.display = showBaleares;
