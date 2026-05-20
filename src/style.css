@@ -551,9 +551,6 @@ body {
   background: rgba(255, 255, 255, 0.95);
 }
 
-.destination-badge.import-badge {
-  background: #8b5cf6;
-}
 
 .import-expeditions-list {
   margin-top: 0.4rem;
@@ -600,9 +597,6 @@ body {
   font-weight: 700;
 }
 
-.progress-bar.import-bar.active-import {
-  background-color: #8b5cf6;
-}
 
 .progress-bar.import-bar.closed {
   background-color: var(--text-secondary);

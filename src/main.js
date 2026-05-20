@@ -300,7 +300,6 @@ function renderDocks() {
               <span class="container-id">${dock.containerId}</span>
               <span class="muelle-id">MUELLE: ${dock.id}</span>
             </div>
-            <span class="destination-badge import-badge">DESCARGA</span>
           </div>
           <div class="import-expeditions-list"></div>
           <div class="weight-info import-parts-info">
@@ -308,9 +307,8 @@ function renderDocks() {
             <span class="import-unloaded-percentage" style="font-size: 0.7rem; color: var(--text-secondary);">0%</span>
           </div>
           <div class="progress-container">
-            <div class="progress-bar import-bar ${isClosed ? 'closed' : 'active-import'}" style="width: 0%"></div>
+            <div class="progress-bar import-bar ${isClosed ? 'closed' : ''}" style="width: 0%"></div>
           </div>
-          ${isClosed ? '<div class="closed-banner">DESCARGA COMPLETA</div>' : ''}
         `;
       }
 
@@ -414,6 +412,27 @@ function renderDocks() {
       const targetWidth = `${Math.min(importPercentage, 100)}%`;
       if (barEl.style.width !== targetWidth) {
         barEl.style.width = targetWidth;
+      }
+
+      // Dynamic color: red → yellow → green based on unloading progress
+      let importBarColor;
+      if (importPercentage < 50) {
+        // Red to Yellow (0-50%)
+        const ratio = importPercentage / 50;
+        const r = 239;
+        const g = Math.round(68 + (158 - 68) * ratio);
+        const b = Math.round(68 + (11 - 68) * ratio);
+        importBarColor = `rgb(${r}, ${g}, ${b})`;
+      } else {
+        // Yellow to Green (50-100%)
+        const ratio = (importPercentage - 50) / 50;
+        const r = Math.round(245 - (245 - 16) * ratio);
+        const g = Math.round(158 + (185 - 158) * ratio);
+        const b = Math.round(11 + (129 - 11) * ratio);
+        importBarColor = `rgb(${r}, ${g}, ${b})`;
+      }
+      if (!isClosed && barEl.style.backgroundColor !== importBarColor) {
+        barEl.style.backgroundColor = importBarColor;
       }
     }
   });
