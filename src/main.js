@@ -39,7 +39,7 @@ const settingsPinInput = document.getElementById('settings-pin');
 async function init() {
   updateClock();
   setInterval(updateClock, 1000);
-  
+
   // Theme logic
   const savedTheme = localStorage.getItem('theme') || 'dark';
   setTheme(savedTheme);
@@ -77,10 +77,10 @@ async function init() {
       apiIntervalInput.value = config.refreshInterval;
       settingsPinInput.value = '';
       apiUrlInput.parentElement.style.display = config.useRealApi ? 'flex' : 'none';
-      
+
       // Load available delegations
       await loadDelegationsDropdown();
-      
+
       settingsModal.style.display = 'flex';
     } else {
       pinError.style.display = 'block';
@@ -107,7 +107,7 @@ async function init() {
     localStorage.setItem('erp_url', url);
     localStorage.setItem('erp_interval', interval);
     localStorage.setItem('erp_delegation', delegation);
-    
+
     // Update live config
     config.useRealApi = useReal;
     config.baseUrl = url;
@@ -120,10 +120,10 @@ async function init() {
     }
 
     settingsModal.style.display = 'none';
-    
+
     // Clear display to force full reload of layout
     clearGrids();
-    
+
     // Restart polling with new settings
     startPolling();
   });
@@ -190,7 +190,7 @@ function updateClock() {
 function setTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
   localStorage.setItem('theme', theme);
-  
+
   if (theme === 'light') {
     sunIcon.style.display = 'none';
     moonIcon.style.display = 'block';
@@ -202,17 +202,17 @@ function setTheme(theme) {
 
 function render() {
   if (!state) return;
-  
+
   // Update header title dynamically to reflect delegation
   document.querySelector('.dashboard-title').textContent = `Dashboard Operativo - ${config.delegation}`;
-  
+
   renderDocks();
   renderWarehouse();
 }
 
 function renderDocks() {
   const currentDockIds = state.docks.map(dock => `dock-${dock.id}`);
-  
+
   // Cleanup old docks not present in the current delegation's state
   [gridPending, gridImport, gridBaleares, gridCanarias, gridPeninsula].forEach(grid => {
     Array.from(grid.children).forEach(child => {
@@ -229,7 +229,7 @@ function renderDocks() {
     const targetWeightVal = (dock.targetWeightPerTeu !== undefined && dock.targetWeightPerTeu !== null) ? dock.targetWeightPerTeu : 10300;
     const maxWeight = isPending ? 0 : (dock.teus || 2) * targetWeightVal;
     const percentage = maxWeight > 0 ? (dock.currentWeight / maxWeight) * 100 : 0;
-    
+
     let statusClass = 'normal';
     if (isPending) statusClass = 'pending';
     else if (percentage >= 95) statusClass = 'critical';
@@ -240,8 +240,8 @@ function renderDocks() {
       ? gridPending
       : (isImport
         ? gridImport
-        : (group === 'BALEARES' 
-          ? gridBaleares 
+        : (group === 'BALEARES'
+          ? gridBaleares
           : (group === 'CANARIAS' ? gridCanarias : gridPeninsula)));
 
     const expectedType = isPending ? 'pending' : (isImport ? 'import' : 'export');
@@ -332,7 +332,7 @@ function renderDocks() {
       if (containerIdEl.textContent !== dock.containerId) {
         containerIdEl.textContent = dock.containerId;
       }
-      
+
       const expectedDest = dock.destination || '';
       if (destBadgeEl && destBadgeEl.textContent !== expectedDest) {
         destBadgeEl.textContent = expectedDest;
@@ -347,22 +347,22 @@ function renderDocks() {
       if (weightEl.textContent !== expectedWeight) {
         weightEl.textContent = expectedWeight;
       }
-      
+
       const expectedMaxText = `OBJ: ${isPending ? '--' : maxWeight.toLocaleString()} kg`;
       if (maxWeightEl.textContent !== expectedMaxText) {
         maxWeightEl.textContent = expectedMaxText;
       }
-      
+
       const targetWidth = `${Math.min(percentage, 100)}%`;
       if (barEl.style.width !== targetWidth) {
         barEl.style.width = targetWidth;
       }
-      
+
       const targetClass = `progress-bar ${statusClass}`;
       if (barEl.className !== targetClass) {
         barEl.className = targetClass;
       }
-      
+
       const targetText = isPending ? '' : `(${percentage.toFixed(1)}%)`;
       if (textEl.textContent !== targetText) {
         textEl.textContent = targetText;
@@ -384,9 +384,8 @@ function renderDocks() {
       const unloadedImportParts = totalImportParts - pendingImportParts;
       const importPercentage = totalImportParts > 0 ? (unloadedImportParts / totalImportParts) * 100 : 0;
 
-      const expsHtml = (dock.expeditions || [])
-        .filter(exp => exp.pendingParts > 0)
-        .map(exp => `
+      const visibleExps = (dock.expeditions || []).filter(exp => exp.pendingParts > 0);
+      const expsHtml = visibleExps.map(exp => `
         <div class="import-exp-item">
           <span class="import-exp-id">${exp.id}</span>
           <span class="import-exp-route">${exp.origin} &rarr; ${exp.destination}</span>
@@ -465,7 +464,7 @@ function renderDocks() {
 function renderWarehouse() {
   // Find all destinations present in active (non-completed) expeditions, excluding local delivery (reparto)
   const activeExpeditions = state.expeditions.filter(e => e.pendingParts > 0 && e.destination !== config.delegation);
-  
+
   // Sort destinations alphabetically
   const destinations = [...new Set(activeExpeditions.map(e => e.destination))].sort((a, b) => a.localeCompare(b));
 
@@ -478,7 +477,7 @@ function renderWarehouse() {
   destinations.forEach((dest, index) => {
     let column = document.getElementById(`col-${dest}`);
     const destExpeditions = activeExpeditions.filter(e => e.destination === dest);
-    
+
     if (!column) {
       column = document.createElement('div');
       column.id = `col-${dest}`;
@@ -497,7 +496,7 @@ function renderWarehouse() {
         <div class="expedition-list"></div>
       `;
     }
-    
+
     // Only insert/move if not already in the correct position in the DOM to avoid unnecessary reflows/flicker
     if (warehouseContainer.children[index] !== column) {
       warehouseContainer.insertBefore(column, warehouseContainer.children[index] || null);
@@ -520,7 +519,7 @@ function renderWarehouse() {
     }
 
     const list = column.querySelector('.expedition-list');
-    
+
     // Cleanup cards in list no longer present in destExpeditions
     const currentExpIds = destExpeditions.map(e => `exp-${e.id}`);
     Array.from(list.children).forEach(child => {
@@ -530,7 +529,7 @@ function renderWarehouse() {
     destExpeditions.forEach((exp, expIndex) => {
       let expCard = document.getElementById(`exp-${exp.id}`);
       const isPartial = exp.pendingParts < exp.totalParts;
-      
+
       if (!expCard) {
         expCard = document.createElement('div');
         expCard.id = `exp-${exp.id}`;
