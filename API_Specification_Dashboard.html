@@ -396,17 +396,17 @@
   </div>
 
   <div class="alert alert-info" style="border-left: 4px solid #8b5cf6; background-color: rgba(139, 92, 246, 0.05); padding: 1rem; border-radius: 4px; margin-top: 1rem;">
-    <strong>📥 Caso 3: Contenedor de Importación / Descarga (Entradas)</strong>
+    <strong>📥 Caso 3: Contenedor de Descarga (Entradas)</strong>
     Cuando la delegación recibe un contenedor lleno, el <code>destination</code> del muelle coincide con la delegación activa (ej. destino <code>BCN</code> estando en la delegación BCN).
     <br><br>
-    La tarjeta se visualiza en la sección <strong>"Descarga / Importación"</strong>. El diseño de la tarjeta cambia para listar los expedientes internos que viajan dentro del contenedor y sus respectivas partidas. Cada lectura de código de barras realizada por el operario descuenta unidades del contador de partidas pendientes de descargar. La barra de progreso de color morado representa el avance de la descarga del contenedor.
+    La tarjeta se visualiza en la sección <strong>"Descarga"</strong>. El diseño cambia para listar los expedientes internos que viajan dentro del contenedor. Cada lectura descuenta unidades pendientes; cuando una expedición llega a 0 pendientes, desaparece de la lista. La barra de progreso cambia de rojo a amarillo y luego a verde, representando el avance de la descarga.
   </div>
 
   <div class="alert alert-success" style="border-left: 4px solid #ff3b30; background-color: rgba(255, 59, 48, 0.05); padding: 1rem; border-radius: 4px; margin-top: 1rem;">
     <strong>🔒 Caso 4: Cierre del Viaje y Fin de Estancia (Salida Física)</strong>
     El ciclo operativo del muelle cuenta con dos estados de finalización en el ERP:
     <ul>
-      <li><strong>Cierre de Viaje (<code>status: "closed"</code>):</strong> Al cerrarse el viaje, la tarjeta del contenedor se vuelve gris y se muestra un banner rotado de <strong>"VIAJE CERRADO"</strong> o <strong>"DESCARGA COMPLETA"</strong>. No se permiten más escaneos sobre ese contenedor, pero permanece acoplado al muelle.</li>
+      <li><strong>Cierre de Viaje (<code>status: "closed"</code>):</strong> Al cerrarse un viaje de exportación, la tarjeta se vuelve gris y muestra el banner <strong>"VIAJE CERRADO"</strong>. No se permiten más escaneos sobre ese contenedor, pero permanece acoplado al muelle. (Nota: los contenedores de descarga no muestran banner, simplemente se ocultan sus expediciones completadas).</li>
       <li><strong>Finalización de Estancia:</strong> Cuando el camión retira físicamente el contenedor del muelle, la estancia finaliza y el muelle queda libre. En el API, el contenedor desaparece del payload (<code>containerId: null</code>) y el dashboard dibuja el muelle vacío ("SIN CONTENEDOR") listo para un nuevo acoplamiento.</li>
     </ul>
   </div>
@@ -416,11 +416,11 @@
   <p>El dashboard agrupa los muelles en 5 secciones principales según el estado del viaje y código del <code>destination</code>:</p>
   <table>
     <tr><th>Grupo</th><th>Destinos / Estado</th><th>Visualización</th></tr>
-    <tr><td><strong>EN MUELLE</strong></td><td>Estancias acopladas sin viaje asignado (<code>destination: null</code>)</td><td>Gris neutro con borde discontinuo</td></tr>
-    <tr><td><strong>DESCARGA / IMPORTACIÓN</strong></td><td>Estancias con destino coincidente a la delegación activa (<code>destination: [DELEGACION_ACTIVA]</code>)</td><td>Morado vibrante, con listado de expedientes internos y barra de descarga</td></tr>
     <tr><td><strong>BALEARES</strong></td><td><code>PMI</code>, <code>IBZ</code>, <code>MAH</code>, <code>FOR</code></td><td>Azul</td></tr>
     <tr><td><strong>CANARIAS</strong></td><td><code>LPA</code>, <code>SCT</code>, <code>ACE</code>, <code>FUE</code>, <code>SSG</code>, <code>HIE</code>, <code>SPC</code></td><td>Verde</td></tr>
     <tr><td><strong>PENÍNSULA</strong></td><td><code>BCN</code>, <code>MAD</code>, <code>SVQ</code>, <code>ALC</code>, <code>BIO</code>, <code>VGO</code>, <code>VLC</code> (excluyendo la propia delegación activa)</td><td>Morado / Violeta</td></tr>
+    <tr><td><strong>DESCARGA</strong></td><td>Estancias con destino coincidente a la delegación activa (<code>destination: [DELEGACION_ACTIVA]</code>)</td><td>Barra de progreso dinámica (Rojo &rarr; Amarillo &rarr; Verde) que oculta las expediciones ya descargadas</td></tr>
+    <tr><td><strong>EN MUELLE</strong></td><td>Estancias acopladas sin viaje asignado (<code>destination: null</code>)</td><td>Gris neutro con borde discontinuo</td></tr>
   </table>
 
   <!-- 7. SEMÁFORO -->
