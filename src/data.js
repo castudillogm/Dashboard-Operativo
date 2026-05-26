@@ -160,7 +160,12 @@ export function simulateScan(state, activeDelegation) {
 
           dock.destination = targetDest;
           dock.tripId = `V${activeDelegation}${Math.floor(Math.random() * 90000) + 10000}`;
-          dock.targetWeightPerTeu = 10300;
+          
+          // Simular la lógica de la tabla del ERP: Almacen -> Plaza Destino
+          if (['PMI', 'MAH', 'IBZ'].includes(targetDest)) dock.targetWeightPerTeu = 8500;
+          else if (['LPA', 'SCT'].includes(targetDest)) dock.targetWeightPerTeu = 10300;
+          else dock.targetWeightPerTeu = 9500; // Península
+          
           dock.currentWeight = 0;
           dock.status = 'active';
         } else {

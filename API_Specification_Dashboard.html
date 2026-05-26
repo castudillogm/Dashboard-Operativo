@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Especificación Técnica API v2.0 — Dashboard Operativo</title>
+  <title>Especificación Técnica API v2.1 — Dashboard Operativo</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
     
@@ -249,11 +249,11 @@
 
   <!-- HEADER -->
   <div class="doc-header">
-    <h1>📋 Especificación Técnica de la API (v2.0)</h1>
+    <h1>📋 Especificación Técnica de la API (v2.1)</h1>
     <div class="subtitle">Dashboard Operativo Multi-Delegación — Integración con ERP</div>
     <div class="meta">
-      <span>📅 Fecha: 19/05/2026</span>
-      <span>📌 Versión: 2.0 (Soporte Multi-Delegación)</span>
+      <span>📅 Fecha: 26/05/2026</span>
+      <span>📌 Versión: 2.1 (Layout optimizado y barra de descarga dinámica)</span>
       <span>👤 Proyecto: Dashboard Almacén</span>
     </div>
   </div>
@@ -360,7 +360,7 @@
     <tr><td><code>destination</code></td><td>string</td><td><code>"PMI"</code></td><td>Plaza de destino final asignada. Si es <code>null</code> o vacío, se considera en "Estado Pendiente" (sin destino designado, renderizado en gris y ocultando el badge de destino).</td></tr>
     <tr><td><code>currentWeight</code></td><td>number</td><td><code>1250</code></td><td>Peso cargado actualmente (en Kg)</td></tr>
     <tr><td><code>teus</code></td><td>number</td><td><code>2</code></td><td>Tipo de contenedor expresado en TEUS (valores válidos: <code>1</code> o <code>2</code>)</td></tr>
-    <tr><td><code>targetWeightPerTeu</code></td><td>number</td><td><code>10300</code></td><td>Objetivo de peso configurado en el ERP por TEU para esta línea de viaje (en Kg). El objetivo total se calcula como <code>teus * targetWeightPerTeu</code>.</td></tr>
+    <tr><td><code>targetWeightPerTeu</code></td><td>number</td><td><code>10300</code></td><td>Objetivo de peso en Kg por TEU. Este valor <strong>es dinámico y depende de la ruta específica del viaje</strong>. Para calcularlo, la API del ERP debe consultar su tabla de configuración cruzando la columna <strong>"Almacen"</strong> (ej. <code>"BCN-ALMACEN"</code>) con la columna <strong>"Plaza Destino"</strong> (ej. <code>"PMI"</code> o <code>"SCT"</code>). El objetivo total de carga se calcula visualmente en el dashboard como <code>teus * targetWeightPerTeu</code>.</td></tr>
     <tr><td><code>tripId</code></td><td>string</td><td><code>"VBCN00001"</code></td><td>Código de estancia de tipo Viaje Export. Si es <code>null</code> o vacío, indica que la estancia es meramente de acoplamiento pero sin viaje iniciado (pendiente).</td></tr>
   </table>
 
@@ -399,7 +399,7 @@
     <strong>📥 Caso 3: Contenedor de Descarga (Entradas)</strong>
     Cuando la delegación recibe un contenedor lleno, el <code>destination</code> del muelle coincide con la delegación activa (ej. destino <code>BCN</code> estando en la delegación BCN).
     <br><br>
-    La tarjeta se visualiza en la sección <strong>"Descarga"</strong>. El diseño cambia para listar los expedientes internos que viajan dentro del contenedor. Cada lectura descuenta unidades pendientes; cuando una expedición llega a 0 pendientes, desaparece de la lista. La barra de progreso cambia de rojo a amarillo y luego a verde, representando el avance de la descarga.
+    La tarjeta se visualiza en la sección <strong>"Descarga"</strong> (posicionada a la derecha del dashboard para priorizar el flujo de trabajo). El diseño cambia para listar los expedientes internos que viajan dentro del contenedor. Cada lectura descuenta unidades pendientes; cuando una expedición llega a 0 pendientes, desaparece de la lista para reducir la carga visual. La barra de progreso es dinámica y cambia de rojo a amarillo y luego a verde, representando visualmente el porcentaje de avance de la descarga sin mostrar etiquetas de texto adicionales.
   </div>
 
   <div class="alert alert-success" style="border-left: 4px solid #ff3b30; background-color: rgba(255, 59, 48, 0.05); padding: 1rem; border-radius: 4px; margin-top: 1rem;">
@@ -412,8 +412,8 @@
   </div>
 
   <!-- 6. GRUPOS DE MUELLES -->
-  <h2>6. Agrupaciones Visuales de Muelles</h2>
-  <p>El dashboard agrupa los muelles en 5 secciones principales según el estado del viaje y código del <code>destination</code>:</p>
+  <h2>6. Agrupaciones Visuales de Muelles (Layout de izquierda a derecha)</h2>
+  <p>El dashboard agrupa los muelles en 5 secciones principales organizadas de izquierda a derecha según el flujo operativo, priorizando las gestiones de descarga a la derecha:</p>
   <table>
     <tr><th>Grupo</th><th>Destinos / Estado</th><th>Visualización</th></tr>
     <tr><td><strong>BALEARES</strong></td><td><code>PMI</code>, <code>IBZ</code>, <code>MAH</code>, <code>FOR</code></td><td>Azul</td></tr>
@@ -454,7 +454,7 @@
 
   <!-- FOOTER -->
   <div class="doc-footer">
-    <p>Dashboard Operativo de Almacén — Especificación API v2.0 — Mayo 2026</p>
+    <p>Dashboard Operativo de Almacén — Especificación API v2.1 — Mayo 2026</p>
   </div>
 
 </body>
