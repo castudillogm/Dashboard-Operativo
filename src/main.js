@@ -281,6 +281,7 @@ function renderDocks() {
             <div class="dock-ids">
               <span class="container-id">${dock.containerId}</span>
               <span class="muelle-id">MUELLE: ${dock.id}</span>
+              <span class="operator-name">${dock.operator ? 'OP: ' + dock.operator : ''}</span>
             </div>
             <span class="destination-badge">${dock.destination}</span>
           </div>
@@ -299,6 +300,7 @@ function renderDocks() {
             <div class="dock-ids">
               <span class="container-id">${dock.containerId}</span>
               <span class="muelle-id">MUELLE: ${dock.id}</span>
+              <span class="operator-name">${dock.operator ? 'OP: ' + dock.operator : ''}</span>
             </div>
           </div>
           <div class="import-expeditions-list"></div>
@@ -328,9 +330,17 @@ function renderDocks() {
       const maxWeightEl = card.querySelector('.weight-max');
       const barEl = card.querySelector('.progress-bar');
       const textEl = card.querySelector('.occupancy-text');
+      const operatorEl = card.querySelector('.operator-name');
 
       if (containerIdEl.textContent !== dock.containerId) {
         containerIdEl.textContent = dock.containerId;
+      }
+
+      if (operatorEl && dock.operator) {
+        const opText = 'OP: ' + dock.operator;
+        if (operatorEl.textContent !== opText) operatorEl.textContent = opText;
+      } else if (operatorEl) {
+        operatorEl.textContent = '';
       }
 
       const expectedDest = dock.destination || '';
@@ -374,9 +384,17 @@ function renderDocks() {
       const totalEl = card.querySelector('.import-total-parts');
       const pctEl = card.querySelector('.import-unloaded-percentage');
       const barEl = card.querySelector('.import-bar');
+      const operatorEl = card.querySelector('.operator-name');
 
       if (containerIdEl.textContent !== dock.containerId) {
         containerIdEl.textContent = dock.containerId;
+      }
+
+      if (operatorEl && dock.operator) {
+        const opText = 'OP: ' + dock.operator;
+        if (operatorEl.textContent !== opText) operatorEl.textContent = opText;
+      } else if (operatorEl) {
+        operatorEl.textContent = '';
       }
 
       const totalImportParts = (dock.expeditions || []).reduce((sum, e) => sum + e.totalParts, 0);
@@ -487,10 +505,18 @@ function renderWarehouse() {
       }, { once: true });
       column.innerHTML = `
         <div class="column-header">
-          <span class="column-dest">${dest}</span>
-          <div class="column-stats">
-            <span class="stat-badge count">0 EXP</span>
-            <span class="stat-badge weight">0 kg</span>
+          <div class="column-dest-wrapper">
+            <span class="column-dest">${dest}</span>
+          </div>
+          <div class="column-stats-container">
+            <div class="column-stats main-stats">
+              <span class="stat-badge count">0 EXP</span>
+              <span class="stat-badge weight">0 kg</span>
+            </div>
+            <div class="column-stats adr-stats">
+              <span class="stat-badge adr-count adr-badge">ADR: 0 EXP</span>
+              <span class="stat-badge adr-weight adr-badge">0 kg</span>
+            </div>
           </div>
         </div>
         <div class="expedition-list"></div>
@@ -505,8 +531,14 @@ function renderWarehouse() {
     const totalExpCount = destExpeditions.length;
     const totalExpWeight = destExpeditions.reduce((sum, e) => sum + e.totalWeight, 0);
 
+    const adrExpeditions = destExpeditions.filter(e => e.isADR);
+    const totalAdrCount = adrExpeditions.length;
+    const totalAdrWeight = adrExpeditions.reduce((sum, e) => sum + e.totalWeight, 0);
+
     const countBadge = column.querySelector('.stat-badge.count');
     const weightBadge = column.querySelector('.stat-badge.weight');
+    const adrCountBadge = column.querySelector('.stat-badge.adr-count');
+    const adrWeightBadge = column.querySelector('.stat-badge.adr-weight');
 
     const countText = `${totalExpCount} EXP`;
     if (countBadge.textContent !== countText) {
@@ -518,17 +550,30 @@ function renderWarehouse() {
       weightBadge.textContent = weightText;
     }
 
+    const adrCountText = `ADR: ${totalAdrCount} EXP`;
+    if (adrCountBadge.textContent !== adrCountText) {
+      adrCountBadge.textContent = adrCountText;
+    }
+
+    const adrWeightText = `${totalAdrWeight.toLocaleString()} kg`;
+    if (adrWeightBadge.textContent !== adrWeightText) {
+      adrWeightBadge.textContent = adrWeightText;
+    }
+
     const list = column.querySelector('.expedition-list');
 
-    // Cleanup cards in list no longer present in destExpeditions
-    const currentExpIds = destExpeditions.map(e => `exp-${e.id}`);
+    // ONLY show partial expeditions (started loading)
+    const visibleExpeditions = destExpeditions.filter(e => e.pendingParts < e.totalParts);
+
+    // Cleanup cards in list no longer present in visibleExpeditions
+    const currentExpIds = visibleExpeditions.map(e => `exp-${e.id}`);
     Array.from(list.children).forEach(child => {
       if (!currentExpIds.includes(child.id)) child.remove();
     });
 
-    destExpeditions.forEach((exp, expIndex) => {
+    visibleExpeditions.forEach((exp, expIndex) => {
       let expCard = document.getElementById(`exp-${exp.id}`);
-      const isPartial = exp.pendingParts < exp.totalParts;
+      const isPartial = true; // since we only show partials anyway
 
       if (!expCard) {
         expCard = document.createElement('div');
@@ -536,7 +581,7 @@ function renderWarehouse() {
         expCard.className = 'expedition-card';
         expCard.innerHTML = `
           <div class="exp-details">
-            <span class="exp-id">${exp.id}</span>
+            <span class="exp-id">${exp.id}${exp.isADR ? ' <span class="adr-label">[ADR]</span>' : ''}</span>
             <span class="exp-route">${exp.origin} &rarr; ${exp.destination}</span>
           </div>
           <span class="exp-counter"></span>

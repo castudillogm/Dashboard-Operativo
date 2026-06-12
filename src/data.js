@@ -33,9 +33,9 @@ export function getDestinationGroup(code) {
 const mockStates = {
   BCN: {
     docks: [
-      { id: 'M01', containerId: 'CONT-4412', destination: 'PMI', currentWeight: 1250, teus: 2, targetWeightPerTeu: 10300, tripId: 'VBCN00001', status: 'active' },
-      { id: 'M05', containerId: 'CONT-8890', destination: 'LPA', currentWeight: 8400, teus: 1, targetWeightPerTeu: 10300, tripId: 'VBCN00002', status: 'active' },
-      { id: 'M09', containerId: 'CONT-1234', destination: 'IBZ', currentWeight: 200, teus: 2, targetWeightPerTeu: 8000, tripId: 'VBCN00003', status: 'active' },
+      { id: 'M01', containerId: 'CONT-4412', destination: 'PMI', currentWeight: 1250, teus: 2, targetWeightPerTeu: 10300, tripId: 'VBCN00001', status: 'active', operator: 'Carlos Ruiz' },
+      { id: 'M05', containerId: 'CONT-8890', destination: 'LPA', currentWeight: 8400, teus: 1, targetWeightPerTeu: 10300, tripId: 'VBCN00002', status: 'active', operator: 'Miguel A.' },
+      { id: 'M09', containerId: 'CONT-1234', destination: 'IBZ', currentWeight: 200, teus: 2, targetWeightPerTeu: 8000, tripId: 'VBCN00003', status: 'active', operator: 'Lucia G.' },
       { 
         id: 'M12', 
         containerId: 'CONT-5678', 
@@ -45,26 +45,27 @@ const mockStates = {
         targetWeightPerTeu: 0, 
         tripId: 'VMAD99999', 
         status: 'active',
+        operator: 'Juan P.',
         expeditions: [
-          { id: 'EMAD881', origin: 'MAD', destination: 'BCN', pendingParts: 5, totalParts: 8, totalWeight: 1500 },
-          { id: 'EMAD882', origin: 'MAD', destination: 'BCN', pendingParts: 3, totalParts: 10, totalWeight: 2000 }
+          { id: 'EMAD881', origin: 'MAD', destination: 'BCN', pendingParts: 5, totalParts: 8, totalWeight: 1500, isADR: false },
+          { id: 'EMAD882', origin: 'MAD', destination: 'BCN', pendingParts: 3, totalParts: 10, totalWeight: 2000, isADR: true }
         ]
       },
       { id: 'M15', containerId: 'CONT-9999', destination: '', currentWeight: 0, teus: 2, targetWeightPerTeu: 0, tripId: '', status: 'pending' },
       { id: 'M16', containerId: '', destination: '', currentWeight: 0, teus: 2, targetWeightPerTeu: 0, tripId: '', status: 'pending' } // Empty muelle
     ],
     expeditions: [
-      { id: 'EBCN001', origin: 'BCN', destination: 'PMI', pendingParts: 12, totalParts: 12, totalWeight: 1450 },
-      { id: 'EBCN002', origin: 'BCN', destination: 'PMI', pendingParts: 5, totalParts: 8, totalWeight: 920 },
-      { id: 'EBCN004', origin: 'MAD', destination: 'PMI', pendingParts: 8, totalParts: 8, totalWeight: 1200 },  // Transit
-      { id: 'EBCN005', origin: 'BCN', destination: 'LPA', pendingParts: 15, totalParts: 30, totalWeight: 5400 },
-      { id: 'EBCN006', origin: 'BCN', destination: 'MAH', pendingParts: 8, totalParts: 8, totalWeight: 850 },
-      { id: 'EBCN007', origin: 'BCN', destination: 'MAD', pendingParts: 3, totalParts: 5, totalWeight: 600 }
+      { id: 'EBCN001', origin: 'BCN', destination: 'PMI', pendingParts: 12, totalParts: 12, totalWeight: 1450, isADR: true },
+      { id: 'EBCN002', origin: 'BCN', destination: 'PMI', pendingParts: 5, totalParts: 8, totalWeight: 920, isADR: false },
+      { id: 'EBCN004', origin: 'MAD', destination: 'PMI', pendingParts: 8, totalParts: 8, totalWeight: 1200, isADR: false },  // Transit
+      { id: 'EBCN005', origin: 'BCN', destination: 'LPA', pendingParts: 15, totalParts: 30, totalWeight: 5400, isADR: true },
+      { id: 'EBCN006', origin: 'BCN', destination: 'MAH', pendingParts: 8, totalParts: 8, totalWeight: 850, isADR: false },
+      { id: 'EBCN007', origin: 'BCN', destination: 'MAD', pendingParts: 3, totalParts: 5, totalWeight: 600, isADR: false }
     ]
   },
   MAD: {
     docks: [
-      { id: 'M01', containerId: 'CONT-MAD1', destination: 'BCN', currentWeight: 4500, teus: 2, targetWeightPerTeu: 10300, tripId: 'VMAD00001', status: 'active' },
+      { id: 'M01', containerId: 'CONT-MAD1', destination: 'BCN', currentWeight: 4500, teus: 2, targetWeightPerTeu: 10300, tripId: 'VMAD00001', status: 'active', operator: 'Ana V.' },
       { 
         id: 'M02', 
         containerId: 'CONT-MAD2', 
@@ -74,16 +75,17 @@ const mockStates = {
         targetWeightPerTeu: 0, 
         tripId: 'VBCN77777', 
         status: 'active',
+        operator: 'Pedro P.',
         expeditions: [
-          { id: 'EBCN771', origin: 'BCN', destination: 'MAD', pendingParts: 6, totalParts: 12, totalWeight: 2200 }
+          { id: 'EBCN771', origin: 'BCN', destination: 'MAD', pendingParts: 6, totalParts: 12, totalWeight: 2200, isADR: false }
         ]
       },
-      { id: 'M03', containerId: 'CONT-MAD3', destination: 'VLC', currentWeight: 2300, teus: 2, targetWeightPerTeu: 9000, tripId: 'VMAD00003', status: 'active' },
+      { id: 'M03', containerId: 'CONT-MAD3', destination: 'VLC', currentWeight: 2300, teus: 2, targetWeightPerTeu: 9000, tripId: 'VMAD00003', status: 'active', operator: 'Maria C.' },
       { id: 'M04', containerId: '', destination: '', currentWeight: 0, teus: 1, targetWeightPerTeu: 0, tripId: '', status: 'pending' } // Empty muelle
     ],
     expeditions: [
-      { id: 'EMAD001', origin: 'MAD', destination: 'BCN', pendingParts: 20, totalParts: 20, totalWeight: 4500 },
-      { id: 'EMAD003', origin: 'MAD', destination: 'PMI', pendingParts: 12, totalParts: 15, totalWeight: 1800 }
+      { id: 'EMAD001', origin: 'MAD', destination: 'BCN', pendingParts: 20, totalParts: 20, totalWeight: 4500, isADR: true },
+      { id: 'EMAD003', origin: 'MAD', destination: 'PMI', pendingParts: 12, totalParts: 15, totalWeight: 1800, isADR: false }
     ]
   }
 };
@@ -97,7 +99,7 @@ export function getMockState(delegation) {
     
     mockStates[delegation] = {
       docks: [
-        { id: 'M01', containerId: `CONT-${delegation}1`, destination: possibleDests[0] || 'PMI', currentWeight: 1000, teus: 2, targetWeightPerTeu: 10300, tripId: `V${delegation}00001`, status: 'active' },
+        { id: 'M01', containerId: `CONT-${delegation}1`, destination: possibleDests[0] || 'PMI', currentWeight: 1000, teus: 2, targetWeightPerTeu: 10300, tripId: `V${delegation}00001`, status: 'active', operator: 'Operario 1' },
         { 
           id: 'M02', 
           containerId: `CONT-${delegation}2`, 
@@ -107,17 +109,18 @@ export function getMockState(delegation) {
           targetWeightPerTeu: 0, 
           tripId: `V${possibleDests[1] || 'MAD'}00002`, 
           status: 'active',
+          operator: 'Operario 2',
           expeditions: [
-            { id: `E${possibleDests[1] || 'MAD'}991`, origin: possibleDests[1] || 'MAD', destination: delegation, pendingParts: 4, totalParts: 8, totalWeight: 1200 },
-            { id: `E${possibleDests[1] || 'MAD'}992`, origin: possibleDests[1] || 'MAD', destination: delegation, pendingParts: 2, totalParts: 6, totalWeight: 800 }
+            { id: `E${possibleDests[1] || 'MAD'}991`, origin: possibleDests[1] || 'MAD', destination: delegation, pendingParts: 4, totalParts: 8, totalWeight: 1200, isADR: false },
+            { id: `E${possibleDests[1] || 'MAD'}992`, origin: possibleDests[1] || 'MAD', destination: delegation, pendingParts: 2, totalParts: 6, totalWeight: 800, isADR: true }
           ]
         },
         { id: 'M03', containerId: `CONT-${delegation}3`, destination: '', currentWeight: 0, teus: 2, targetWeightPerTeu: 0, tripId: '', status: 'pending' },
         { id: 'M04', containerId: '', destination: '', currentWeight: 0, teus: 2, targetWeightPerTeu: 0, tripId: '', status: 'pending' }
       ],
       expeditions: [
-        { id: `E${delegation}001`, origin: delegation, destination: possibleDests[0] || 'PMI', pendingParts: 10, totalParts: 10, totalWeight: 1500 },
-        { id: `E${delegation}002`, origin: delegation, destination: possibleDests[1] || 'LPA', pendingParts: 5, totalParts: 8, totalWeight: 900 }
+        { id: `E${delegation}001`, origin: delegation, destination: possibleDests[0] || 'PMI', pendingParts: 10, totalParts: 10, totalWeight: 1500, isADR: Math.random() > 0.5 },
+        { id: `E${delegation}002`, origin: delegation, destination: possibleDests[1] || 'LPA', pendingParts: 5, totalParts: 8, totalWeight: 900, isADR: Math.random() > 0.5 }
       ]
     };
   }
@@ -168,6 +171,7 @@ export function simulateScan(state, activeDelegation) {
           
           dock.currentWeight = 0;
           dock.status = 'active';
+          dock.operator = 'Op. ' + Math.floor(Math.random() * 100);
         } else {
           // Import trip
           dock.destination = activeDelegation;
@@ -175,9 +179,10 @@ export function simulateScan(state, activeDelegation) {
           dock.targetWeightPerTeu = 0;
           dock.currentWeight = 4000 + Math.floor(Math.random() * 5000);
           dock.status = 'active';
+          dock.operator = 'Op. ' + Math.floor(Math.random() * 100);
           dock.expeditions = [
-            { id: `E${randomOrigin}${Math.floor(Math.random() * 900) + 100}`, origin: randomOrigin, destination: activeDelegation, pendingParts: 6, totalParts: 6, totalWeight: 2000 },
-            { id: `E${randomOrigin}${Math.floor(Math.random() * 900) + 100}`, origin: randomOrigin, destination: activeDelegation, pendingParts: 4, totalParts: 4, totalWeight: 1500 }
+            { id: `E${randomOrigin}${Math.floor(Math.random() * 900) + 100}`, origin: randomOrigin, destination: activeDelegation, pendingParts: 6, totalParts: 6, totalWeight: 2000, isADR: Math.random() > 0.8 },
+            { id: `E${randomOrigin}${Math.floor(Math.random() * 900) + 100}`, origin: randomOrigin, destination: activeDelegation, pendingParts: 4, totalParts: 4, totalWeight: 1500, isADR: Math.random() > 0.8 }
           ];
         }
       }
