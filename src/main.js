@@ -268,7 +268,10 @@ function renderDocks() {
             <span class="destination-badge"></span>
           </div>
           <div class="weight-info">
-            <span><span class="weight-current">0</span> kg <span class="occupancy-text" style="font-size: 0.7rem; color: var(--text-secondary); margin-left: 0.25rem;"></span></span>
+            <div class="weight-left">
+              <span><span class="weight-current">0</span> kg</span>
+              <span class="occupancy-text"></span>
+            </div>
             <span class="weight-max">OBJ: -- kg</span>
           </div>
           <div class="progress-container">
@@ -286,7 +289,10 @@ function renderDocks() {
             <span class="destination-badge">${dock.destination}</span>
           </div>
           <div class="weight-info">
-            <span><span class="weight-current">0</span> kg <span class="occupancy-text" style="font-size: 0.7rem; color: var(--text-secondary); margin-left: 0.25rem;"></span></span>
+            <div class="weight-left">
+              <span><span class="weight-current">0</span> kg</span>
+              <span class="occupancy-text"></span>
+            </div>
             <span class="weight-max">OBJ: ${maxWeight.toLocaleString()} kg</span>
           </div>
           <div class="progress-container">
@@ -306,7 +312,7 @@ function renderDocks() {
           <div class="import-expeditions-list"></div>
           <div class="weight-info import-parts-info">
             <span>PENDIENTE: <span class="import-pending-parts">0</span> / <span class="import-total-parts">0</span> P.</span>
-            <span class="import-unloaded-percentage" style="font-size: 0.7rem; color: var(--text-secondary);">0%</span>
+            <span class="import-unloaded-percentage">0%</span>
           </div>
           <div class="progress-container">
             <div class="progress-bar import-bar ${isClosed ? 'closed' : ''}" style="width: 0%"></div>
@@ -377,6 +383,16 @@ function renderDocks() {
       if (textEl.textContent !== targetText) {
         textEl.textContent = targetText;
       }
+      
+      if (!isPending) {
+        let color = 'var(--text-secondary)';
+        if (percentage < 40) color = 'var(--accent-red)';
+        else if (percentage < 100) color = 'var(--accent-orange)';
+        else color = 'var(--accent-green)';
+        if (textEl.style.color !== color) textEl.style.color = color;
+      } else {
+        if (textEl.style.color !== 'var(--text-secondary)') textEl.style.color = 'var(--text-secondary)';
+      }
     } else if (expectedType === 'import') {
       const containerIdEl = card.querySelector('.container-id');
       const listEl = card.querySelector('.import-expeditions-list');
@@ -427,6 +443,12 @@ function renderDocks() {
       if (pctEl.textContent !== expectedPctText) {
         pctEl.textContent = expectedPctText;
       }
+
+      let pctColor = 'var(--text-secondary)';
+      if (importPercentage < 40) pctColor = 'var(--accent-red)';
+      else if (importPercentage < 100) pctColor = 'var(--accent-orange)';
+      else pctColor = 'var(--accent-green)';
+      if (pctEl.style.color !== pctColor) pctEl.style.color = pctColor;
 
       const targetWidth = `${Math.min(importPercentage, 100)}%`;
       if (barEl.style.width !== targetWidth) {

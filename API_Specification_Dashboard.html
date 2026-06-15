@@ -249,11 +249,11 @@
 
   <!-- HEADER -->
   <div class="doc-header">
-    <h1>📋 Especificación Técnica de la API (v2.1)</h1>
+    <h1>📋 Especificación Técnica de la API (v2.2)</h1>
     <div class="subtitle">Dashboard Operativo Multi-Delegación — Integración con ERP</div>
     <div class="meta">
-      <span>📅 Fecha: 26/05/2026</span>
-      <span>📌 Versión: 2.1 (Layout optimizado y barra de descarga dinámica)</span>
+      <span>📅 Fecha: 15/06/2026</span>
+      <span>📌 Versión: 2.2 (Soporte ADR y Operador en muelle)</span>
       <span>👤 Proyecto: Dashboard Almacén</span>
     </div>
   </div>
@@ -261,6 +261,14 @@
   <!-- 1. RESUMEN -->
   <h2>1. Resumen de la Integración</h2>
   <p>El Dashboard Operativo es un sistema multi-delegación. La delegación activa se configura mediante un PIN de seguridad en la pantalla (código por defecto <code>2026</code>) y se pasa como parámetro a la API del ERP. De esta manera, el dashboard muestra únicamente los muelles y expediciones físicamente presentes en la delegación seleccionada.</p>
+
+  <div class="alert alert-success" style="margin-bottom: 2rem;">
+    <strong>✨ Novedades añadidas respecto a la especificación anterior:</strong>
+    <ul style="margin-left: 1.5rem; margin-top: 0.5rem; font-size: 0.85rem; color: var(--gray-700);">
+      <li>Se ha agregado el campo <code>operator</code> en los muelles (docks) para mostrar el nombre del operario asignado al viaje.</li>
+      <li>Se ha agregado el campo booleano <code>isADR</code> en las expediciones (expeditions) para activar la UI especial de mercancías peligrosas (etiquetas de fondo amarillo).</li>
+    </ul>
+  </div>
 
   <div class="flow">
     <div class="flow-step">🏬 Selección de Delegación (ej. BCN)</div>
@@ -304,6 +312,7 @@
     {
       <span class="json-key">"id"</span>: <span class="json-string">"M01"</span>,
       <span class="json-key">"containerId"</span>: <span class="json-string">"CONT-4412"</span>,
+      <span class="json-key">"operator"</span>: <span class="json-string">"Carlos Ruiz"</span>,
       <span class="json-key">"destination"</span>: <span class="json-string">"PMI"</span>,
       <span class="json-key">"currentWeight"</span>: <span class="json-number">1250</span>,
       <span class="json-key">"teus"</span>: <span class="json-number">2</span>,
@@ -313,6 +322,7 @@
     {
       <span class="json-key">"id"</span>: <span class="json-string">"M15"</span>,
       <span class="json-key">"containerId"</span>: <span class="json-string">"CONT-9999"</span>,
+      <span class="json-key">"operator"</span>: <span class="json-string">"Op. 84"</span>,
       <span class="json-key">"destination"</span>: <span class="json-number">null</span>,
       <span class="json-key">"currentWeight"</span>: <span class="json-number">0</span>,
       <span class="json-key">"teus"</span>: <span class="json-number">2</span>,
@@ -327,7 +337,8 @@
       <span class="json-key">"destination"</span>: <span class="json-string">"PMI"</span>,
       <span class="json-key">"pendingParts"</span>: <span class="json-number">12</span>,
       <span class="json-key">"totalParts"</span>: <span class="json-number">12</span>,
-      <span class="json-key">"totalWeight"</span>: <span class="json-number">1450</span>
+      <span class="json-key">"totalWeight"</span>: <span class="json-number">1450</span>,
+      <span class="json-key">"isADR"</span>: <span class="json-number">true</span>
     },
     {
       <span class="json-key">"id"</span>: <span class="json-string">"EBCN003"</span>,
@@ -335,7 +346,8 @@
       <span class="json-key">"destination"</span>: <span class="json-string">"BCN"</span>,
       <span class="json-key">"pendingParts"</span>: <span class="json-number">6</span>,
       <span class="json-key">"totalParts"</span>: <span class="json-number">10</span>,
-      <span class="json-key">"totalWeight"</span>: <span class="json-number">2200</span>
+      <span class="json-key">"totalWeight"</span>: <span class="json-number">2200</span>,
+      <span class="json-key">"isADR"</span>: <span class="json-number">false</span>
     },
     {
       <span class="json-key">"id"</span>: <span class="json-string">"EBCN004"</span>,
@@ -343,7 +355,8 @@
       <span class="json-key">"destination"</span>: <span class="json-string">"PMI"</span>,
       <span class="json-key">"pendingParts"</span>: <span class="json-number">8</span>,
       <span class="json-key">"totalParts"</span>: <span class="json-number">8</span>,
-      <span class="json-key">"totalWeight"</span>: <span class="json-number">1200</span>
+      <span class="json-key">"totalWeight"</span>: <span class="json-number">1200</span>,
+      <span class="json-key">"isADR"</span>: <span class="json-number">false</span>
     }
   ]
 }</pre>
@@ -357,6 +370,7 @@
     <tr><th>Campo</th><th>Tipo</th><th>Ejemplo</th><th>Descripción</th></tr>
     <tr><td><code>id</code></td><td>string</td><td><code>"M01"</code></td><td>Identificador único del muelle en la delegación</td></tr>
     <tr><td><code>containerId</code></td><td>string</td><td><code>"CONT-4412"</code></td><td>Matrícula del contenedor/remolque acoplado</td></tr>
+    <tr><td><code>operator</code></td><td>string</td><td><code>"Carlos Ruiz"</code></td><td>Nombre del operador asignado al viaje</td></tr>
     <tr><td><code>destination</code></td><td>string</td><td><code>"PMI"</code></td><td>Plaza de destino final asignada. Si es <code>null</code> o vacío, se considera en "Estado Pendiente" (sin destino designado, renderizado en gris y ocultando el badge de destino).</td></tr>
     <tr><td><code>currentWeight</code></td><td>number</td><td><code>1250</code></td><td>Peso cargado actualmente (en Kg)</td></tr>
     <tr><td><code>teus</code></td><td>number</td><td><code>2</code></td><td>Tipo de contenedor expresado en TEUS (valores válidos: <code>1</code> o <code>2</code>)</td></tr>
@@ -374,6 +388,7 @@
     <tr><td><code>pendingParts</code></td><td>number</td><td><code>12</code></td><td>Cantidad de partidas pendientes de leer/cargar. El operario escanea etiquetas individuales de bulto que comienzan con la letra <strong>'S'</strong>, decrementando este valor.</td></tr>
     <tr><td><code>totalParts</code></td><td>number</td><td><code>12</code></td><td>Cantidad total de partidas de la expedición</td></tr>
     <tr><td><code>totalWeight</code></td><td>number</td><td><code>1450</code></td><td>Peso total de la expedición (en Kg)</td></tr>
+    <tr><td><code>isADR</code></td><td>boolean</td><td><code>true</code></td><td>Indica si la expedición contiene Mercancías Peligrosas (ADR)</td></tr>
   </table>
 
   <!-- 5. CASOS ESPECIALES -->
@@ -454,7 +469,7 @@
 
   <!-- FOOTER -->
   <div class="doc-footer">
-    <p>Dashboard Operativo de Almacén — Especificación API v2.1 — Mayo 2026</p>
+    <p>Dashboard Operativo de Almacén — Especificación API v2.2 — Junio 2026</p>
   </div>
 
 </body>

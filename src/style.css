@@ -55,12 +55,14 @@ body {
   align-items: center;
   z-index: 100;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  position: relative;
 }
 
 .header-right {
   display: flex;
   align-items: center;
   gap: 1.5rem;
+  margin-left: auto;
 }
 
 .status-indicator {
@@ -147,11 +149,14 @@ body {
 }
 
 .dashboard-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   font-size: 1.25rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--accent-blue);
+  color: #091197;
 }
 
 /* Main Layout */
@@ -186,7 +191,7 @@ body {
 }
 
 .group-header {
-  font-size: 0.875rem;
+  font-size: 1.75rem;
   font-weight: 600;
   color: var(--text-secondary);
   text-transform: uppercase;
@@ -197,7 +202,7 @@ body {
 
 .group-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
   gap: 1rem;
 }
 
@@ -250,45 +255,53 @@ body {
 
 .container-id {
   font-family: var(--font-mono);
-  font-size: 1.1rem;
+  font-size: 2.2rem;
   font-weight: 700;
-  color: var(--text-primary);
+  color: #091197;
+  white-space: nowrap;
 }
 
 .muelle-id {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
+  font-size: 1.8rem;
+  color: #03A9EC;
 }
 
 .operator-name {
-  font-size: 0.7rem;
-  color: var(--accent-orange);
+  font-size: 1.75rem;
+  color: #F75600;
   font-weight: 700;
   margin-top: 0.15rem;
 }
 
 .destination-badge {
-  background: var(--accent-blue);
+  background: #091197;
   color: white;
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
   font-weight: 800;
   font-family: var(--font-mono);
+  font-size: 1.5rem;
 }
 
 .weight-info {
   display: flex;
   justify-content: space-between;
-  font-size: 0.875rem;
+  font-size: 1.8rem;
 }
 
 .weight-current {
   font-weight: 700;
-  color: var(--text-primary);
+  color: #091197;
+  white-space: nowrap;
 }
 
 .weight-max {
-  color: var(--text-secondary);
+  color: #03A9EC;
+  white-space: nowrap;
+}
+
+.occupancy-text {
+  font-size: 1.5rem !important;
 }
 
 /* Progress Bar */
@@ -323,8 +336,9 @@ body {
 /* Warehouse Section */
 .section-warehouse {
   flex: 1;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   gap: 1rem;
   overflow-y: auto;
   padding-bottom: 1rem;
@@ -337,7 +351,9 @@ body {
   display: flex;
   flex-direction: column;
   max-height: 500px;
-  /* Limit height to prevent excessive stretching */
+  flex: 1;
+  min-width: 280px;
+  max-width: 800px;
 }
 
 .column-header {
@@ -354,6 +370,9 @@ body {
   justify-content: center;
   align-items: center;
   margin-bottom: 0.5rem;
+  background: #091197;
+  padding: 0.5rem;
+  border-radius: 6px;
 }
 
 .column-dest {
@@ -361,7 +380,7 @@ body {
   font-size: 2rem;
   text-transform: uppercase;
   white-space: nowrap;
-  color: var(--accent-blue);
+  color: #FFFFFF;
 }
 
 .column-stats-container {
@@ -375,16 +394,16 @@ body {
   gap: 0.5rem;
   font-family: var(--font-mono);
   justify-content: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 .main-stats .stat-badge {
-  font-size: 1.5rem;
+  font-size: 3rem;
   padding: 0.5rem 1rem;
 }
 
 .adr-stats .stat-badge {
-  font-size: 1.5rem;
+  font-size: 3rem;
   padding: 0.5rem 1rem;
 }
 
@@ -397,21 +416,21 @@ body {
 }
 
 .stat-badge.weight {
-  color: var(--accent-orange);
+  color: #F75600;
 }
 
 .stat-badge.count {
-  color: var(--accent-blue);
+  color: #03A9EC;
 }
 
 .stat-badge.adr-badge {
-  background: rgba(239, 68, 68, 0.1);
-  border-color: rgba(239, 68, 68, 0.3);
-  color: var(--accent-red);
+  background: #ffd700;
+  border-color: #fbc02d;
+  color: #000000;
 }
 
 .adr-label {
-  color: var(--accent-red);
+  color: #ffd700;
   font-weight: 800;
   margin-left: 0.3rem;
 }
@@ -433,7 +452,7 @@ body {
   justify-content: space-between;
   align-items: center;
   font-family: var(--font-mono);
-  font-size: 0.875rem;
+  font-size: 1.75rem;
   transition: background-color 0.2s;
 }
 
@@ -658,6 +677,7 @@ body {
   background: rgba(128, 128, 128, 0.05);
   padding: 0.15rem 0.35rem;
   border-radius: 4px;
+  gap: 0.5rem;
 }
 
 .import-exp-item.completed {
@@ -675,11 +695,15 @@ body {
 .import-exp-route {
   color: var(--text-secondary);
   font-size: 0.65rem;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .import-exp-counter {
   font-family: var(--font-mono);
   font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .progress-bar.import-bar.active-import {
@@ -705,4 +729,25 @@ body {
 
 .expedition-card.partial .exp-route {
   color: rgba(255, 255, 255, 0.8);
+}
+
+.import-parts-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+}
+
+.import-unloaded-percentage {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.weight-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  white-space: nowrap;
+  color: #091197;
 }
