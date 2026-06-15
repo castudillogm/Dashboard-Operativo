@@ -35,6 +35,12 @@
   box-sizing: border-box;
 }
 
+html {
+  /* Escala dinámicamente el tamaño base de la fuente (1rem) dependiendo del tamaño de la pantalla.
+     Ideal para TVs de 75 pulgadas (1080p o 4K) para que todo quepa sin cortarse por abajo. */
+  font-size: clamp(8px, min(1.1vw, 1.3vh), 24px);
+}
+
 body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
