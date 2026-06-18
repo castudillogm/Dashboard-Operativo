@@ -252,31 +252,41 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  gap: 0.5rem;
 }
 
 .dock-ids {
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .container-id {
   font-family: var(--font-mono);
-  font-size: 2.2rem;
+  font-size: clamp(1.4rem, 2vw, 2.2rem);
   font-weight: 700;
   color: #091197;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .muelle-id {
-  font-size: 1.8rem;
+  font-size: clamp(1.2rem, 1.5vw, 1.8rem);
   color: #03A9EC;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .operator-name {
-  font-size: 1.75rem;
+  font-size: clamp(1.1rem, 1.5vw, 1.75rem);
   color: #F75600;
   font-weight: 700;
   margin-top: 0.15rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .destination-badge {
@@ -286,24 +296,31 @@ body {
   border-radius: 4px;
   font-weight: 800;
   font-family: var(--font-mono);
-  font-size: 1.5rem;
+  font-size: clamp(1rem, 1.2vw, 1.5rem);
+  flex-shrink: 0;
 }
 
 .weight-info {
   display: flex;
   justify-content: space-between;
-  font-size: 1.8rem;
+  font-size: clamp(1.2rem, 1.5vw, 1.8rem);
+  flex-wrap: wrap;
+  gap: 0.25rem;
 }
 
 .weight-current {
   font-weight: 700;
   color: #091197;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .weight-max {
   color: #03A9EC;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .occupancy-text {
@@ -683,7 +700,8 @@ body {
   background: rgba(128, 128, 128, 0.05);
   padding: 0.15rem 0.35rem;
   border-radius: 4px;
-  gap: 0.5rem;
+  gap: 0.25rem;
+  overflow: hidden;
 }
 
 .import-exp-item.completed {
@@ -702,7 +720,9 @@ body {
   color: var(--text-secondary);
   font-size: 0.65rem;
   white-space: nowrap;
-  flex-shrink: 0;
+  flex-shrink: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .import-exp-counter {
