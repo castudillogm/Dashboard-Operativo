@@ -72,7 +72,7 @@ async function init() {
     if (pinInput.value === config.pin) {
       // Mostrar estado de carga en el botón
       submitPin.disabled = true;
-      submitPin.textContent = 'Conectando con ERP...';
+      submitPin.innerHTML = '<span class="spinner"></span> Conectando...';
       submitPin.style.opacity = '0.7';
 
       // Load form fields (se preparan en el DOM aunque no se vean aún)
