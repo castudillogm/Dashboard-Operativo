@@ -68,7 +68,7 @@ async function init() {
     if (e.key === 'Enter') handlePinSubmit();
   });
 
-  async function handlePinSubmit() {
+  function handlePinSubmit() {
     if (pinInput.value === config.pin) {
       pinModal.style.display = 'none';
       // Load form fields and open settings modal
@@ -82,7 +82,10 @@ async function init() {
       settingsModal.style.display = 'flex';
 
       // Load available delegations (puede tardar si la URL no responde)
-      await loadDelegationsDropdown();
+      // Usar setTimeout obliga al navegador a repintar el DOM antes de iniciar la petición de red
+      setTimeout(() => {
+        loadDelegationsDropdown();
+      }, 50);
     } else {
       pinError.style.display = 'block';
     }
