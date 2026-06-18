@@ -17,9 +17,17 @@ const statesCache = {};
  */
 export async function fetchDashboardData() {
   if (config.useRealApi) {
-    const response = await fetch(`${config.baseUrl}/warehouse/status?delegation=${config.delegation}`);
-    if (!response.ok) throw new Error('ERP Connection Failed');
-    return await response.json();
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3000);
+    try {
+      const response = await fetch(`${config.baseUrl}/warehouse/status?delegation=${config.delegation}`, { signal: controller.signal });
+      clearTimeout(timeoutId);
+      if (!response.ok) throw new Error('ERP Connection Failed');
+      return await response.json();
+    } catch (e) {
+      clearTimeout(timeoutId);
+      throw e;
+    }
   } else {
     // Simulation mode
     return new Promise((resolve) => {

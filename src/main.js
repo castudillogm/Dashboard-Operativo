@@ -158,7 +158,8 @@ async function init() {
     state = null;
   }
 
-  // Data Fetch Loop
+  let pollingTimeout = null;
+
   async function updateData() {
     try {
       const newData = await fetchDashboardData();
@@ -171,13 +172,18 @@ async function init() {
     } catch (error) {
       statusIndicator.classList.add('offline');
       statusText.textContent = 'ERP OFFLINE';
+    } finally {
+      if (pollingTimeout !== false) {
+        pollingTimeout = setTimeout(updateData, config.refreshInterval * 1000);
+      }
     }
   }
 
   function startPolling() {
-    if (pollingInterval) clearInterval(pollingInterval);
+    if (pollingTimeout) clearTimeout(pollingTimeout);
+    pollingTimeout = false; // Flag to prevent overlaps
+    clearTimeout(pollingTimeout);
     updateData();
-    pollingInterval = setInterval(updateData, config.refreshInterval * 1000);
   }
 
   startPolling();
