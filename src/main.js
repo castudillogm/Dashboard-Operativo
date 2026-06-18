@@ -70,22 +70,32 @@ async function init() {
 
   function handlePinSubmit() {
     if (pinInput.value === config.pin) {
-      pinModal.style.display = 'none';
-      // Load form fields and open settings modal
+      // Mostrar estado de carga en el botón
+      submitPin.disabled = true;
+      submitPin.textContent = 'Conectando con ERP...';
+      submitPin.style.opacity = '0.7';
+
+      // Load form fields (se preparan en el DOM aunque no se vean aún)
       apiModeSelect.value = config.useRealApi ? 'real' : 'mock';
       apiUrlInput.value = config.baseUrl;
       apiIntervalInput.value = config.refreshInterval;
       settingsPinInput.value = '';
       apiUrlInput.parentElement.style.display = config.useRealApi ? 'flex' : 'none';
 
-      // Mostrar el modal inmediatamente para que no parezca trabado
-      settingsModal.style.display = 'flex';
-
-      // Load available delegations (puede tardar si la URL no responde)
-      // Usar setTimeout obliga al navegador a repintar el DOM antes de iniciar la petición de red
-      setTimeout(() => {
-        loadDelegationsDropdown();
-      }, 50);
+      // Usar setTimeout para permitir que el navegador dibuje el botón "Conectando..."
+      setTimeout(async () => {
+        // Fetch a las delegaciones (puede tardar si la URL no responde)
+        await loadDelegationsDropdown();
+        
+        // Cambiamos de modal
+        pinModal.style.display = 'none';
+        settingsModal.style.display = 'flex';
+        
+        // Restaurar estado del botón para la próxima vez
+        submitPin.disabled = false;
+        submitPin.textContent = 'Acceder';
+        submitPin.style.opacity = '1';
+      }, 100);
     } else {
       pinError.style.display = 'block';
     }
