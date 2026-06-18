@@ -373,7 +373,7 @@ body {
   border-radius: 8px;
   display: flex;
   flex-direction: column;
-  max-height: 500px;
+  max-height: none;
   flex: 1;
   min-width: 280px;
   max-width: 800px;
@@ -417,17 +417,17 @@ body {
   gap: 0.5rem;
   font-family: var(--font-mono);
   justify-content: center;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
 }
 
 .main-stats .stat-badge {
-  font-size: 3rem;
-  padding: 0.5rem 1rem;
+  font-size: clamp(1.5rem, 2.5vw, 2.5rem);
+  padding: 0.5rem 0.5rem;
 }
 
 .adr-stats .stat-badge {
-  font-size: 3rem;
-  padding: 0.5rem 1rem;
+  font-size: clamp(1.2rem, 2vw, 2rem);
+  padding: 0.5rem 0.5rem;
 }
 
 .stat-badge {
@@ -475,7 +475,7 @@ body {
   justify-content: space-between;
   align-items: center;
   font-family: var(--font-mono);
-  font-size: 1.75rem;
+  font-size: clamp(1rem, 1.5vw, 1.5rem);
   transition: background-color 0.2s;
 }
 
