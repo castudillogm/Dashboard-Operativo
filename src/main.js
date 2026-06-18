@@ -78,10 +78,11 @@ async function init() {
       settingsPinInput.value = '';
       apiUrlInput.parentElement.style.display = config.useRealApi ? 'flex' : 'none';
 
-      // Load available delegations
-      await loadDelegationsDropdown();
-
+      // Mostrar el modal inmediatamente para que no parezca trabado
       settingsModal.style.display = 'flex';
+
+      // Load available delegations (puede tardar si la URL no responde)
+      await loadDelegationsDropdown();
     } else {
       pinError.style.display = 'block';
     }

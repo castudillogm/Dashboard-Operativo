@@ -40,7 +40,10 @@ export async function fetchDashboardData() {
 export async function fetchDelegations() {
   if (config.useRealApi) {
     try {
-      const response = await fetch(`${config.baseUrl}/logistics/zones`);
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000);
+      const response = await fetch(`${config.baseUrl}/logistics/zones`, { signal: controller.signal });
+      clearTimeout(timeoutId);
       if (response.ok) {
         return await response.json();
       }
