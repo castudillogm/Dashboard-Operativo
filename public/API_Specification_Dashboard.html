@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Especificación Técnica de la API — Dashboard Operativo</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+    
+    :root {
+      --blue: #2563eb;
+      --blue-light: #eff6ff;
+      --green: #059669;
+      --green-light: #ecfdf5;
+      --orange: #d97706;
+      --orange-light: #fffbeb;
+      --red: #dc2626;
+      --red-light: #fef2f2;
+      --purple: #7c3aed;
+      --purple-light: #f5f3ff;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-500: #6b7280;
+      --gray-700: #374151;
+      --gray-900: #111827;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      color: var(--gray-900);
+      line-height: 1.6;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 2.5rem;
+      background: white;
+    }
+
+    @media print {
+      body { padding: 0; font-size: 11px; }
+      .page-break { page-break-before: always; }
+      .no-print { display: none; }
+    }
+
+    /* Header */
+    .doc-header {
+      text-align: center;
+      padding: 2rem 0;
+      border-bottom: 3px solid var(--blue);
+      margin-bottom: 2rem;
+    }
+    .doc-header h1 {
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: var(--blue);
+      margin-bottom: 0.5rem;
+    }
+    .doc-header .subtitle {
+      font-size: 1.05rem;
+      color: var(--gray-500);
+    }
+    .doc-header .meta {
+      margin-top: 1rem;
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      font-size: 0.85rem;
+      color: var(--gray-500);
+      flex-wrap: wrap;
+    }
+
+    /* Sections */
+    h2 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--blue);
+      margin: 2.2rem 0 1rem 0;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--gray-200);
+    }
+    h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--gray-700);
+      margin: 1.5rem 0 0.75rem 0;
+    }
+    p { margin-bottom: 0.75rem; color: var(--gray-700); }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.86rem;
+    }
+    th {
+      background: var(--blue);
+      color: white;
+      padding: 0.65rem 0.85rem;
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    td {
+      padding: 0.6rem 0.85rem;
+      border-bottom: 1px solid var(--gray-200);
+      vertical-align: top;
+    }
+    tr:nth-child(even) { background: var(--gray-50); }
+    td code {
+      background: var(--gray-100);
+      padding: 0.15rem 0.35rem;
+      border-radius: 3px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      color: var(--blue);
+    }
+
+    /* Code blocks */
+    pre {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 1.25rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      line-height: 1.55;
+      margin: 1rem 0;
+    }
+    .json-key { color: #7dd3fc; }
+    .json-string { color: #86efac; }
+    .json-number { color: #fbbf24; }
+    .json-boolean { color: #c084fc; font-weight: bold; }
+    .json-null { color: #f87171; font-weight: bold; }
+    .json-highlight { background: rgba(59, 130, 246, 0.2); border-left: 3px solid #60a5fa; padding-left: 4px; display: block; }
+
+    /* Alert boxes */
+    .alert {
+      padding: 1rem 1.25rem;
+      border-radius: 8px;
+      margin: 1rem 0;
+      border-left: 4px solid;
+      font-size: 0.86rem;
+    }
+    .alert-info { background: var(--blue-light); border-color: var(--blue); }
+    .alert-warning { background: var(--orange-light); border-color: var(--orange); }
+    .alert-danger { background: var(--red-light); border-color: var(--red); }
+    .alert-success { background: var(--green-light); border-color: var(--green); }
+    .alert strong { display: block; margin-bottom: 0.35rem; }
+
+    /* Badges */
+    .badge-preview {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 5px;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 0.8rem;
+      margin: 0.2rem;
+      border: 1px solid transparent;
+    }
+    .badge-load { color: #0369a1; background: #e0f2fe; border-color: #38bdf8; }
+    .badge-unload { color: #c2410c; background: #ffedd5; border-color: #fb923c; }
+    .badge-pending { color: #475569; background: #f1f5f9; border-color: #94a3b8; }
+
+    /* Semaphore boxes */
+    .semaphore {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+    .sem-box {
+      padding: 1rem;
+      border-radius: 8px;
+      border: 1px solid var(--gray-200);
+    }
+    .sem-box h4 { margin-bottom: 0.5rem; font-size: 0.9rem; }
+    .sem-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin: 0.35rem 0;
+      font-size: 0.82rem;
+    }
+    .dot {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+    .dot-blue { background: #38bdf8; }
+    .dot-orange { background: #fb923c; }
+    .dot-green { background: #10b981; }
+    .dot-red { background: #ef4444; }
+    .dot-gray { background: #94a3b8; }
+
+    /* Flow diagram */
+    .flow {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin: 1.5rem 0;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .flow-step {
+      background: var(--blue-light);
+      border: 1px solid var(--blue);
+      border-radius: 8px;
+      padding: 0.6rem 0.9rem;
+      font-size: 0.78rem;
+      text-align: center;
+      max-width: 160px;
+      color: var(--gray-700);
+    }
+    .flow-arrow {
+      font-size: 1.25rem;
+      color: var(--blue);
+      padding: 0 0.25rem;
+      font-weight: 700;
+    }
+
+    /* Checklist */
+    .checklist {
+      list-style: none;
+      padding: 0;
+    }
+    .checklist li {
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--gray-100);
+      font-size: 0.85rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+    .checklist li::before {
+      content: "☐";
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    /* Footer */
+    .doc-footer {
+      margin-top: 3rem;
+      padding-top: 1rem;
+      border-top: 2px solid var(--gray-200);
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--gray-500);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- PRINT BUTTON -->
+  <div class="no-print" style="text-align:right; margin-bottom:1rem;">
+    <button onclick="window.print()" style="background:var(--blue);color:white;border:none;padding:0.75rem 1.5rem;border-radius:8px;font-weight:700;cursor:pointer;font-size:0.9rem;">
+      📄 Guardar como PDF (Ctrl+P)
+    </button>
+  </div>
+
+  <!-- HEADER -->
+  <div class="doc-header">
+    <h1>📋 Especificación Técnica de la API</h1>
+    <div class="subtitle">Dashboard Operativo Multi-Delegación — Integración con ERP</div>
+    <div class="meta">
+      <span>📅 Versión Definitiva</span>
+      <span>📌 Proyecto: Dashboard Almacén</span>
+      <span>🌐 Entorno: Operativo en Tiempo Real</span>
+    </div>
+  </div>
+
+  <!-- 1. RESUMEN -->
+  <h2>1. Resumen de la Integración y Flujo Operativo</h2>
+  <p>El Dashboard Operativo es un sistema de control visual en tiempo real para centros logísticos y almacenes de consolidación. El sistema es multi-delegación: la delegación activa se selecciona mediante un PIN de seguridad en pantalla (código por defecto <code>2026</code>) y se pasa como parámetro a la API del ERP. De esta manera, el dashboard muestra únicamente los muelles y expediciones presentes en dicha instalación.</p>
+
+  <div class="flow">
+    <div class="flow-step">🏬 Selección de Delegación (ej. BCN)</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">🔄 Petición GET ?delegation=BCN</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">📊 ERP filtra muelles con estancia y expediciones</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">🖥️ Renderizado de muelles secuenciales y columnas</div>
+  </div>
+
+  <div class="alert alert-success">
+    <strong>✨ Reglas de Visualización Actualizadas:</strong>
+    <ul style="margin-left: 1.5rem; margin-top: 0.5rem; font-size: 0.86rem;">
+      <li><strong>Muelles Secuenciales con Estancia Únicamente:</strong> Se eliminó la separación en cajas agrupadas. Ahora los muelles se muestran ordenados en secuencia continua (<code>M01</code>, <code>M02</code>, <code>M05</code>...), mostrando exclusivamente aquellos que tienen una estancia activa (<code>hasStay: true</code> y contenedor presente). Los muelles vacíos quedan ocultos.</li>
+      <li><strong>Tres Estados y Colores de Muelles:</strong>
+        <ul>
+          <li><strong>Carga (Exportación):</strong> Fondo <span class="badge-preview badge-load">Celeste Claro</span> (<code>#e0f2fe</code>). Muestra matrícula/transportista, operador asignado, volumen (con % al lado), ocupación en ML y kilos efectivos (con % al lado).</li>
+          <li><strong>Descarga (Importación):</strong> Fondo <span class="badge-preview badge-unload">Naranja Claro</span> (<code>#ffedd5</code>). No lleva la palabra "DESCARGA"; se identifica directamente por el color. Muestra matrícula/transportista, operador asignado, expediciones entrantes y la línea de pendientes en una sola línea horizontal.</li>
+          <li><strong>En Muelle (Estancia aperturada sin viaje asignado):</strong> Fondo <span class="badge-preview badge-pending">Gris</span> (<code>#f1f5f9</code>). Muestra <strong>únicamente</strong> el número de muelle y el número de contenedor (ej. <code>M15</code> y <code>TASU009999</code>).</li>
+        </ul>
+      </li>
+      <li><strong>Nombres de Contenedor Reales:</strong> Los números de contenedor utilizan el estándar internacional ISO tipo <code>TASU00XXXX</code> (ej. <code>TASU004412</code>), mostrándose completos sin truncarse con puntos suspensivos.</li>
+      <li><strong>Identificación de Transporte y Operador:</strong>
+        <ul>
+          <li><strong>Chófer Interno:</strong> Muestra la matrícula del vehículo: <code>MATRÍCULA: XXXX-YYY</code>.</li>
+          <li><strong>Transportista Externo:</strong> Muestra la empresa/chófer: <code>TRANSP.: Nombre Transportista</code>.</li>
+          <li><strong>Operador de Muelle:</strong> Muestra el operario asignado que realiza la carga o la descarga: <code>OPERADOR: Nombre</code>.</li>
+        </ul>
+      </li>
+      <li><strong>Filtro DUA en Canarias (LPA, SCT):</strong> Ubicado en la cabecera azul al lado del destino como <code>[✓] DUA</code>. Al marcarse, el contador refleja únicamente la cantidad absoluta filtrada (ej. <code>2 EXP</code>, nunca en formato de fracción).</li>
+    </ul>
+  </div>
+
+  <!-- 2. ENDPOINTS -->
+  <h2>2. Endpoints Requeridos del ERP</h2>
+
+  <h3>2.1. Catálogo de Delegaciones</h3>
+  <p>Obtiene la lista completa de delegaciones logísticas configuradas en el ERP para poblar el selector de configuración.</p>
+  <table>
+    <tr><th style="width:30%">Propiedad</th><th>Valor</th></tr>
+    <tr><td><strong>Método HTTP</strong></td><td><code>GET</code></td></tr>
+    <tr><td><strong>Ruta sugerida</strong></td><td><code>/api/v1/logistics/zones</code></td></tr>
+    <tr><td><strong>Respuesta</strong></td><td>Array de objetos (ej. <code>[{"code": "BCN", "name": "Barcelona"}, {"code": "MAD", "name": "Madrid"}]</code>)</td></tr>
+  </table>
+
+  <h3>2.2. Estado Operativo del Almacén por Delegación</h3>
+  <p>Devuelve el estado en tiempo real de los muelles activos y las expediciones físicas en la delegación especificada.</p>
+  <table>
+    <tr><th style="width:30%">Propiedad</th><th>Valor</th></tr>
+    <tr><td><strong>Método HTTP</strong></td><td><code>GET</code></td></tr>
+    <tr><td><strong>Ruta sugerida</strong></td><td><code>/api/v1/warehouse/status</code></td></tr>
+    <tr><td><strong>Parámetro Query</strong></td><td><code>delegation</code> (Obligatorio, ej. <code>?delegation=BCN</code>)</td></tr>
+    <tr><td><strong>CORS</strong></td><td>Habilitado (<code>Access-Control-Allow-Origin: *</code>)</td></tr>
+    <tr><td><strong>Frecuencia de refresco</strong></td><td>Configurable en pantalla (por defecto cada <code>3000 ms</code>)</td></tr>
+  </table>
+
+  <!-- 3. JSON -->
+  <div class="page-break"></div>
+  <h2>3. Estructura del JSON de Respuesta (Estado de Carga)</h2>
+  <p>Respuesta devuelta por <code>GET /api/v1/warehouse/status?delegation=BCN</code>:</p>
+
+  <pre>{
+  <span class="json-key">"docks"</span>: [
+    {
+      <span class="json-key">"id"</span>: <span class="json-string">"M01"</span>,
+      <span class="json-key">"containerId"</span>: <span class="json-string">"TASU004412"</span>,
+      <span class="json-key">"destination"</span>: <span class="json-string">"PMI"</span>,
+      <span class="json-key">"status"</span>: <span class="json-string">"active"</span>,
+      <span class="json-key">"hasStay"</span>: <span class="json-boolean">true</span>,
+<span class="json-highlight">      <span class="json-key">"operator"</span>: <span class="json-string">"Carlos Ruiz"</span>,
+      <span class="json-key">"driverType"</span>: <span class="json-string">"internal"</span>,
+      <span class="json-key">"vehiclePlate"</span>: <span class="json-string">"8421-KLS"</span>,
+      <span class="json-key">"carrierName"</span>: <span class="json-string">""</span>,
+      <span class="json-key">"equipmentVolume"</span>: <span class="json-number">76.0</span>,
+      <span class="json-key">"equipmentLength"</span>: <span class="json-number">13.6</span>,
+      <span class="json-key">"currentVolume"</span>: <span class="json-number">24.5</span>,
+      <span class="json-key">"currentLinealMeters"</span>: <span class="json-number">10.2</span>,
+      <span class="json-key">"currentWeight"</span>: <span class="json-number">1250</span>,
+      <span class="json-key">"teus"</span>: <span class="json-number">2</span>,
+      <span class="json-key">"targetWeightPerTeu"</span>: <span class="json-number">10300</span>,
+      <span class="json-key">"tripId"</span>: <span class="json-string">"VBCN00001"</span></span>
+    },
+    {
+      <span class="json-key">"id"</span>: <span class="json-string">"M12"</span>,
+      <span class="json-key">"containerId"</span>: <span class="json-string">"TASU005678"</span>,
+      <span class="json-key">"destination"</span>: <span class="json-string">"BCN"</span>,
+      <span class="json-key">"status"</span>: <span class="json-string">"active"</span>,
+      <span class="json-key">"hasStay"</span>: <span class="json-boolean">true</span>,
+<span class="json-highlight">      <span class="json-key">"operator"</span>: <span class="json-string">"Juan P."</span>,
+      <span class="json-key">"driverType"</span>: <span class="json-string">"external"</span>,
+      <span class="json-key">"vehiclePlate"</span>: <span class="json-string">""</span>,
+      <span class="json-key">"carrierName"</span>: <span class="json-string">"Transportes Marítimos Sur"</span>,
+      <span class="json-key">"expeditions"</span>: [
+        {
+          <span class="json-key">"id"</span>: <span class="json-string">"EMAD881"</span>,
+          <span class="json-key">"origin"</span>: <span class="json-string">"MAD"</span>,
+          <span class="json-key">"destination"</span>: <span class="json-string">"BCN"</span>,
+          <span class="json-key">"pendingParts"</span>: <span class="json-number">5</span>,
+          <span class="json-key">"totalParts"</span>: <span class="json-number">8</span>,
+          <span class="json-key">"totalWeight"</span>: <span class="json-number">1500</span>,
+          <span class="json-key">"volume"</span>: <span class="json-number">16.0</span>,
+          <span class="json-key">"height"</span>: <span class="json-number">2.2</span>,
+          <span class="json-key">"isADR"</span>: <span class="json-boolean">false</span>
+        }
+      ]</span>
+    },
+    {
+      <span class="json-key">"id"</span>: <span class="json-string">"M15"</span>,
+      <span class="json-key">"containerId"</span>: <span class="json-string">"TASU009999"</span>,
+      <span class="json-key">"destination"</span>: <span class="json-null">null</span>,
+      <span class="json-key">"tripId"</span>: <span class="json-null">null</span>,
+      <span class="json-key">"status"</span>: <span class="json-string">"pending"</span>,
+      <span class="json-key">"hasStay"</span>: <span class="json-boolean">true</span>
+    }
+  ],
+  <span class="json-key">"expeditions"</span>: [
+    {
+      <span class="json-key">"id"</span>: <span class="json-string">"EBCN001"</span>,
+      <span class="json-key">"origin"</span>: <span class="json-string">"BCN"</span>,
+      <span class="json-key">"destination"</span>: <span class="json-string">"PMI"</span>,
+      <span class="json-key">"pendingParts"</span>: <span class="json-number">12</span>,
+      <span class="json-key">"totalParts"</span>: <span class="json-number">12</span>,
+      <span class="json-key">"totalWeight"</span>: <span class="json-number">1450</span>,
+      <span class="json-key">"pallets"</span>: <span class="json-number">3</span>,
+      <span class="json-key">"packages"</span>: <span class="json-number">12</span>,
+      <span class="json-key">"volume"</span>: <span class="json-number">15.6</span>,
+      <span class="json-key">"height"</span>: <span class="json-number">2.2</span>,
+      <span class="json-key">"isADR"</span>: <span class="json-boolean">true</span>,
+      <span class="json-key">"isDispatched"</span>: <span class="json-boolean">true</span>
+    },
+    {
+      <span class="json-key">"id"</span>: <span class="json-string">"EBCN011"</span>,
+      <span class="json-key">"origin"</span>: <span class="json-string">"BCN"</span>,
+      <span class="json-key">"destination"</span>: <span class="json-string">"LPA"</span>,
+      <span class="json-key">"pendingParts"</span>: <span class="json-number">14</span>,
+      <span class="json-key">"totalParts"</span>: <span class="json-number">14</span>,
+      <span class="json-key">"totalWeight"</span>: <span class="json-number">1600</span>,
+      <span class="json-key">"pallets"</span>: <span class="json-number">3</span>,
+      <span class="json-key">"packages"</span>: <span class="json-number">14</span>,
+      <span class="json-key">"volume"</span>: <span class="json-number">14.5</span>,
+      <span class="json-key">"height"</span>: <span class="json-number">2.2</span>,
+      <span class="json-key">"isADR"</span>: <span class="json-boolean">false</span>,
+      <span class="json-key">"isDispatched"</span>: <span class="json-boolean">false</span>
+    }
+  ]
+}</pre>
+
+  <!-- 4. DICCIONARIO DE DATOS -->
+  <h2>4. Diccionario de Datos Detallado</h2>
+
+  <h3>4.1. Array <code>docks</code> (Muelles con Estancia)</h3>
+  <table>
+    <tr><th>Campo</th><th>Tipo</th><th>Ejemplo</th><th>Descripción</th></tr>
+    <tr><td><code>id</code></td><td>string</td><td><code>"M01"</code></td><td>Identificador único del muelle en el almacén. En pantalla se muestra solo el código directo (ej. <code>M01</code>, <code>M02</code>), sin el prefijo "MUELLE".</td></tr>
+    <tr><td><code>containerId</code></td><td>string</td><td><code>"TASU004412"</code></td><td>Matrícula o código ISO del contenedor acoplado (formato <code>TASU00XXXX</code>).</td></tr>
+    <tr><td><code>hasStay</code></td><td>boolean</td><td><code>true</code></td><td>Indica si el muelle tiene una estancia física abierta. Si es <code>false</code> o no tiene contenedor, el muelle no se renderiza en el dashboard.</td></tr>
+    <tr><td><code>status</code></td><td>string</td><td><code>"active" | "pending" | "closed"</code></td><td>Estado operativo: <code>"active"</code> (en proceso de carga o descarga), <code>"pending"</code> (estancia acoplada sin viaje asignado, tarjeta gris), <code>"closed"</code> (viaje finalizado).</td></tr>
+    <tr><td><code>destination</code></td><td>string</td><td><code>"PMI"</code></td><td>Destino final de la carga. Si coincide con la delegación activa, se procesa como <strong>Descarga</strong> (naranja); si es diferente, como <strong>Carga</strong> (celeste); si es <code>null</code> o vacío, como <strong>En Muelle</strong> (gris).</td></tr>
+    <tr><td><code>operator</code></td><td>string</td><td><code>"Carlos Ruiz"</code></td><td>Nombre del operario de almacén asignado a las labores de carga o descarga en dicho muelle.</td></tr>
+    <tr><td><code>driverType</code></td><td>string</td><td><code>"internal" | "external"</code></td><td>Tipo de conductor asignado. Si es <code>"internal"</code> se prioriza la matrícula; si es <code>"external"</code> se muestra el transportista.</td></tr>
+    <tr><td><code>vehiclePlate</code></td><td>string</td><td><code>"8421-KLS"</code></td><td>Matrícula de la tractora o camión de reparto (chófer interno).</td></tr>
+    <tr><td><code>carrierName</code></td><td>string</td><td><code>"Trans. Canarian Express"</code></td><td>Nombre de la empresa transportista o agencia externa asignada.</td></tr>
+    <tr><td><code>currentVolume</code></td><td>number</td><td><code>24.5</code></td><td>Volumen acumulado cargado actualmente en el contenedor (en m³).</td></tr>
+    <tr><td><code>equipmentVolume</code></td><td>number</td><td><code>76.0</code></td><td>Capacidad cúbica máxima del equipo contenedor (en m³).</td></tr>
+    <tr><td><code>currentLinealMeters</code></td><td>number</td><td><code>10.20</code></td><td>Metros lineales ocupados actualmente por la mercancía cargada (en m lin.).</td></tr>
+    <tr><td><code>equipmentLength</code></td><td>number</td><td><code>13.6</code></td><td>Longitud total del contenedor (en metros).</td></tr>
+    <tr><td><code>currentWeight</code></td><td>number</td><td><code>1250</code></td><td>Peso total acumulado cargado en el contenedor (en Kg).</td></tr>
+    <tr><td><code>teus</code></td><td>number</td><td><code>1 | 2</code></td><td>Tipo de contenedor en TEUS (1 TEU = 20 pies / 2 TEUS = 40 pies).</td></tr>
+    <tr><td><code>targetWeightPerTeu</code></td><td>number</td><td><code>10300</code></td><td>Capacidad máxima de peso por TEU de la ruta (utilizado como base del 100% para el cálculo del porcentaje de kilos efectivos).</td></tr>
+    <tr><td><code>tripId</code></td><td>string</td><td><code>"VBCN00001"</code></td><td>Identificador único del viaje en el ERP.</td></tr>
+    <tr><td><code>expeditions</code></td><td>array</td><td><code>[...]</code></td><td>Listado de partidas contenidas en el viaje cuando el muelle es de <strong>Descarga</strong>.</td></tr>
+  </table>
+
+  <h3>4.2. Array <code>expeditions</code> (Expediciones físicas en almacén)</h3>
+  <table>
+    <tr><th>Campo</th><th>Tipo</th><th>Ejemplo</th><th>Descripción</th></tr>
+    <tr><td><code>id</code></td><td>string</td><td><code>"EBCN001"</code></td><td>Identificador único de la expedición o albarán en el ERP.</td></tr>
+    <tr><td><code>origin</code></td><td>string</td><td><code>"BCN"</code></td><td>Delegación de origen de la mercancía.</td></tr>
+    <tr><td><code>destination</code></td><td>string</td><td><code>"PMI"</code></td><td>Delegación de destino final. Agrupa las tarjetas en su columna correspondiente.</td></tr>
+    <tr><td><code>pendingParts</code></td><td>number</td><td><code>12</code></td><td>Cantidad de partidas pendientes de cargar. Cada lectura con escáner descuenta unidades hasta llegar a 0.</td></tr>
+    <tr><td><code>totalParts</code></td><td>number</td><td><code>12</code></td><td>Cantidad total de partidas que componen la expedición.</td></tr>
+    <tr><td><code>totalWeight</code></td><td>number</td><td><code>1450</code></td><td>Peso total de la expedición (en Kg).</td></tr>
+    <tr><td><code>pallets</code></td><td>number</td><td><code>3</code></td><td>Número de palets asignados a la expedición (PAL).</td></tr>
+    <tr><td><code>packages</code></td><td>number</td><td><code>12</code></td><td>Número de bultos asignados a la expedición (BLT).</td></tr>
+    <tr><td><code>volume</code></td><td>number</td><td><code>15.6</code></td><td>Volumen volumétrico total de la expedición (en m³).</td></tr>
+    <tr><td><code>height</code></td><td>number</td><td><code>2.2</code></td><td>Altura de la partida/bulto (en metros), utilizada para el cálculo de metros lineales.</td></tr>
+    <tr><td><code>isADR</code></td><td>boolean</td><td><code>true</code></td><td>Indica si transporta Mercancías Peligrosas (ADR). Resalta la tarjeta con insignia amarilla.</td></tr>
+    <tr><td><code>isDispatched</code></td><td>boolean</td><td><code>true</code></td><td>Estado del despacho aduanero (DUA). Utilizado para el filtro interactivo en Canarias (LPA, SCT).</td></tr>
+  </table>
+
+  <!-- 5. CASOS LOGÍSTICOS -->
+  <div class="page-break"></div>
+  <h2>5. Casos Especiales de Lógica Logística</h2>
+
+  <div class="alert alert-info">
+    <strong>✈️ Caso 1: Mercancía en Tránsito (Transbordos)</strong>
+    Si la delegación activa es <code>BCN</code> y existe una expedición con <code>origin: "MAD"</code> y <code>destination: "PMI"</code>, el dashboard la posiciona automáticamente en la columna <strong>PMI</strong>, indicando en la tarjeta la ruta de procedencia <code>MAD &rarr; PMI</code>.
+  </div>
+
+  <div class="alert alert-warning">
+    <strong>🔗 Caso 2: Contenedor en Muelle sin Viaje (Estancia Pendiente en Gris)</strong>
+    Cuando un contenedor está acoplado al muelle con estancia física aperturada pero el viaje no ha sido iniciado en el ERP (<code>tripId: null</code> o <code>status: "pending"</code>), el dashboard dibuja la tarjeta en fondo <strong>gris</strong> (<code>#f1f5f9</code>).
+    <br><br>
+    En este estado muestra <strong>únicamente el muelle y el contenedor</strong> (ej. <code>M15</code> y <code>TASU009999</code>), sin datos de transporte ni métricas de carga. Una vez iniciado el viaje, cambia automáticamente al color correspondiente (celeste o naranja).
+  </div>
+
+  <div class="alert alert-info" style="border-left-color: #fb923c; background: #fff7ed;">
+    <strong>📥 Caso 3: Contenedor de Descarga (Importación en Naranja)</strong>
+    Cuando el <code>destination</code> del contenedor coincide con la delegación activa (ej. <code>BCN</code> en la delegación BCN), se representa como muelle de Descarga con fondo <strong>naranja claro</strong> (<code>#ffedd5</code>).
+    <br><br>
+    No muestra la palabra "DESCARGA"; se identifica por su color distintivo. Muestra el listado de expediciones a descargar y totaliza las partidas pendientes en una sola línea horizontal: <code>PENDIENTE: 8 / 18 P. (55.6%)</code>.
+  </div>
+
+  <div class="alert alert-success">
+    <strong>🔒 Caso 4: Cierre del Viaje y Salida Física</strong>
+    <ul>
+      <li><strong>Cierre de Viaje (<code>status: "closed"</code>):</strong> Al cerrarse la carga o descarga en el ERP, la tarjeta muestra el banner <code>VIAJE CERRADO</code> o <code>DESCARGA FINALIZADA</code>. El contenedor permanece en pantalla hasta su salida física.</li>
+      <li><strong>Salida Física de Estancia (<code>hasStay: false</code>):</strong> Cuando el remolque abandona físicamente el muelle, la estancia finaliza en el ERP y el muelle desaparece automáticamente del dashboard.</li>
+    </ul>
+  </div>
+
+  <!-- 6. FÓRMULAS DE CÁLCULO -->
+  <h2>6. Fórmulas de Cálculo y Métricas</h2>
+  <table>
+    <tr><th>Métrica</th><th>Fórmula Operativa</th><th>Visualización en Pantalla</th></tr>
+    <tr>
+      <td><strong>Volumen Acumulado y %</strong></td>
+      <td><code>VolPartida = (PartidasCargadas / TotalPartidas) &times; VolumenExpedicion</code><br><code>% Volumen = (currentVolume / equipmentVolume) &times; 100</code></td>
+      <td><code>VOLUMEN: (32.2%)&nbsp;&nbsp;&nbsp;&nbsp;24.5 / 76.0 m³</code></td>
+    </tr>
+    <tr>
+      <td><strong>Ocupación en Metros Lineales</strong></td>
+      <td><code>MLPartida = VolPartida / AlturaPartida</code><br>Suma total de los metros lineales de cada partida cargada en el equipo.</td>
+      <td><code>OCUPACIÓN:&nbsp;&nbsp;&nbsp;&nbsp;10.20 m lin.</code></td>
+    </tr>
+    <tr>
+      <td><strong>Kilos Efectivos y %</strong></td>
+      <td><code>CapacidadKg = teus &times; targetWeightPerTeu</code><br><code>% Kilos = (currentWeight / CapacidadKg) &times; 100</code></td>
+      <td><code>KILOS: (6.1%)&nbsp;&nbsp;&nbsp;&nbsp;1250 kg</code></td>
+    </tr>
+  </table>
+
+  <!-- 7. ALERTA VISUAL ANDON -->
+  <h2>7. Alertas Visuales (Andon)</h2>
+  <div class="semaphore">
+    <div class="sem-box">
+      <h4>🏗️ Tarjetas de Muelles</h4>
+      <div class="sem-item"><span class="dot dot-gray"></span> Estancia sin viaje &rarr; Gris (Pendiente)</div>
+      <div class="sem-item"><span class="dot dot-blue"></span> En Carga (Exportación) &rarr; Celeste Claro</div>
+      <div class="sem-item"><span class="dot dot-orange"></span> En Descarga (Importación) &rarr; Naranja Claro</div>
+      <div class="sem-item"><span class="dot dot-red"></span> Viaje Cerrado &rarr; Banner bloqueado</div>
+    </div>
+    <div class="sem-box">
+      <h4>📦 Expediciones en Columnas</h4>
+      <div class="sem-item"><span class="dot dot-gray"></span> pendingParts == totalParts &rarr; Sin comenzar (oculta)</div>
+      <div class="sem-item"><span class="dot dot-red"></span> pendingParts &lt; totalParts &rarr; <strong>Carga Parcial iniciada</strong></div>
+      <div class="sem-item"><span class="dot dot-orange"></span> isADR == true &rarr; <strong>Insignia ADR Amarilla</strong></div>
+      <div class="sem-item"><span class="dot dot-green"></span> isDispatched == true &rarr; Despacho DUA Aprobado</div>
+    </div>
+  </div>
+
+  <!-- 8. CHECKLIST -->
+  <h2>8. Checklist de Validación para el Equipo ERP</h2>
+  <ul class="checklist">
+    <li>Implementar el endpoint <code>GET /api/v1/logistics/zones</code> con el catálogo de delegaciones.</li>
+    <li>Implementar el endpoint <code>GET /api/v1/warehouse/status?delegation=[CODIGO]</code>.</li>
+    <li>Devolver únicamente los muelles que tienen estancia física activa (<code>hasStay: true</code>).</li>
+    <li>Proveer los campos <code>driverType</code>, <code>vehiclePlate</code> y <code>carrierName</code> para la identificación del transporte.</li>
+    <li>Proveer el campo <code>operator</code> con el operario asignado a la carga o descarga del muelle.</li>
+    <li>Proveer los cálculos o valores base de <code>currentVolume</code>, <code>equipmentVolume</code>, <code>currentLinealMeters</code> y <code>equipmentLength</code>.</li>
+    <li>Proveer las medidas de partida (<code>volume</code> y <code>height</code>) y el estado aduanero (<code>isDispatched</code>) en el array <code>expeditions</code>.</li>
+    <li>Habilitar encabezados <strong>CORS</strong> en el servidor (<code>Access-Control-Allow-Origin: *</code>).</li>
+  </ul>
+
+  <!-- FOOTER -->
+  <div class="doc-footer">
+    <p>Documentación Oficial de Integración — Dashboard Operativo de Almacén</p>
+  </div>
+
+</body>
+</html>

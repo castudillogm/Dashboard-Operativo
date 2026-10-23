@@ -3,13 +3,10 @@ import { fetchDashboardData, fetchDelegations, config } from './api.js';
 
 let state = null;
 let pollingInterval = null;
+const canariasDispatchedOnly = {};
 
 // Elements
-const gridPending = document.getElementById('grid-pending');
-const gridImport = document.getElementById('grid-import');
-const gridBaleares = document.getElementById('grid-baleares');
-const gridCanarias = document.getElementById('grid-canarias');
-const gridPeninsula = document.getElementById('grid-peninsula');
+const sectionDocks = document.getElementById('section-docks');
 const warehouseContainer = document.getElementById('section-warehouse');
 const clockElement = document.getElementById('clock');
 const themeToggle = document.getElementById('theme-toggle');
@@ -162,12 +159,8 @@ async function init() {
 
   // Clear current HTML nodes (to avoid leftovers on delegation switch)
   function clearGrids() {
-    gridPending.innerHTML = '';
-    gridImport.innerHTML = '';
-    gridBaleares.innerHTML = '';
-    gridCanarias.innerHTML = '';
-    gridPeninsula.innerHTML = '';
-    warehouseContainer.innerHTML = '';
+    if (sectionDocks) sectionDocks.innerHTML = '';
+    if (warehouseContainer) warehouseContainer.innerHTML = '';
     state = null;
   }
 
@@ -231,40 +224,44 @@ function render() {
 }
 
 function renderDocks() {
-  const currentDockIds = state.docks.map(dock => `dock-${dock.id}`);
+  if (!sectionDocks || !state || !state.docks) return;
 
-  // Cleanup old docks not present in the current delegation's state
-  [gridPending, gridImport, gridBaleares, gridCanarias, gridPeninsula].forEach(grid => {
-    Array.from(grid.children).forEach(child => {
-      if (!currentDockIds.includes(child.id)) child.remove();
-    });
+  // 1. Filtrar SOLO los muelles que tienen estancia aperturada
+  const activeDocks = state.docks.filter(dock => {
+    if (dock.hasStay === false) return false;
+    if (!dock.containerId || dock.containerId.trim() === '') return false;
+    return true;
   });
 
-  state.docks.forEach(dock => {
+  // Ordenados en secuencia continua (M01, M02, M05, etc.)
+  activeDocks.sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true }));
+
+  const activeDockIds = activeDocks.map(dock => `dock-${dock.id}`);
+
+  // Limpiar muelles que ya no tienen estancia
+  Array.from(sectionDocks.children).forEach(child => {
+    if (!activeDockIds.includes(child.id)) child.remove();
+  });
+
+  activeDocks.forEach((dock, index) => {
     let card = document.getElementById(`dock-${dock.id}`);
-    const isPending = !dock.destination || !dock.tripId;
-    const isImport = !isPending && (dock.destination === config.delegation || !!dock.isImport);
+    const hasTrip = Boolean((dock.destination && dock.destination.trim() !== '') || (dock.tripId && dock.tripId.trim() !== ''));
     const isClosed = dock.status === 'closed' || dock.tripStatus === 'closed';
+    
+    let expectedType = 'pending';
+    if (hasTrip) {
+      const isImport = dock.destination === config.delegation || !!dock.isImport || dock.type === 'unload';
+      expectedType = isImport ? 'unload' : 'load';
+    } else {
+      expectedType = 'pending';
+    }
 
-    const targetWeightVal = (dock.targetWeightPerTeu !== undefined && dock.targetWeightPerTeu !== null) ? dock.targetWeightPerTeu : 10300;
-    const maxWeight = isPending ? 0 : (dock.teus || 2) * targetWeightVal;
-    const percentage = maxWeight > 0 ? (dock.currentWeight / maxWeight) * 100 : 0;
-
-    let statusClass = 'normal';
-    if (isPending) statusClass = 'pending';
-    else if (percentage >= 95) statusClass = 'critical';
-    else if (percentage >= 85) statusClass = 'warning';
-
-    const group = getDestinationGroup(dock.destination);
-    const targetGrid = isPending
-      ? gridPending
-      : (isImport
-        ? gridImport
-        : (group === 'BALEARES'
-          ? gridBaleares
-          : (group === 'CANARIAS' ? gridCanarias : gridPeninsula)));
-
-    const expectedType = isPending ? 'pending' : (isImport ? 'import' : 'export');
+    // Chofer interno (Matrícula) vs Transportista externo (Chófer / Transportista) - Sin colores de pill ni iconos
+    const isInternal = dock.driverType === 'internal' || (dock.vehiclePlate && !dock.carrierName);
+    const driverText = isInternal
+      ? `MATRÍCULA: ${dock.vehiclePlate || dock.matricula || dock.tractora || '---'}`
+      : `TRANSP.: ${dock.carrierName || dock.transportista || dock.chofer || '---'}`;
+    const operatorText = dock.operator ? `OPERADOR: ${dock.operator}` : '';
 
     if (!card || card.dataset.type !== expectedType || card.dataset.closed !== String(isClosed)) {
       if (!card) {
@@ -273,164 +270,170 @@ function renderDocks() {
       }
       card.dataset.type = expectedType;
       card.dataset.closed = String(isClosed);
-      card.className = `dock-card ${isPending ? 'pending' : ''} ${isImport ? 'import' : ''} ${isClosed ? 'closed' : ''} fade-in`;
+      card.className = `dock-card ${expectedType} ${isClosed ? 'closed' : ''} fade-in`;
       card.addEventListener('animationend', () => {
         card.classList.remove('fade-in');
       }, { once: true });
 
-      if (expectedType === 'pending') {
+      if (expectedType === 'load') {
+        const maxVol = dock.equipmentVolume || (dock.teus === 1 ? 38.0 : 76.0);
+        const currentVol = dock.currentVolume != null ? dock.currentVolume : 0;
+        const volPct = maxVol > 0 ? (currentVol / maxVol) * 100 : 0;
+        const currentML = dock.currentLinealMeters != null ? dock.currentLinealMeters : 0;
+
+        const targetWeightVal = (dock.targetWeightPerTeu !== undefined && dock.targetWeightPerTeu !== null && dock.targetWeightPerTeu > 0) ? dock.targetWeightPerTeu : 10300;
+        const maxWeight = (dock.teus || 2) * targetWeightVal;
+        const weightPct = maxWeight > 0 ? (dock.currentWeight / maxWeight) * 100 : 0;
+
         card.innerHTML = `
           <div class="dock-header">
             <div class="dock-ids">
+              <span class="muelle-id">${dock.id}</span>
               <span class="container-id">${dock.containerId}</span>
-              <span class="muelle-id">MUELLE: ${dock.id}</span>
             </div>
-            <span class="destination-badge"></span>
+            <span class="destination-badge">${dock.destination || ''}</span>
           </div>
-          <div class="weight-info">
-            <div class="weight-left">
-              <span><span class="weight-current">0</span> kg</span>
-              <span class="occupancy-text"></span>
+          <div class="dock-driver">${driverText}</div>
+          <div class="dock-operator">${operatorText}</div>
+          <div class="dock-metrics">
+            <div class="dock-metric-row">
+              <span class="metric-label">VOLUMEN: <span class="vol-pct">(${volPct.toFixed(1)}%)</span></span>
+              <span class="metric-value"><strong class="vol-current">${currentVol.toFixed(1)}</strong> / ${maxVol.toFixed(1)} m³</span>
             </div>
-            <span class="weight-max">OBJ: -- kg</span>
+            <div class="dock-metric-row">
+              <span class="metric-label">OCUPACIÓN:</span>
+              <span class="metric-value"><strong class="ml-current">${currentML.toFixed(2)}</strong> m lin.</span>
+            </div>
+            <div class="dock-metric-row">
+              <span class="metric-label">KILOS: <span class="kg-pct">(${weightPct.toFixed(1)}%)</span></span>
+              <span class="metric-value"><strong class="kg-current">${dock.currentWeight.toLocaleString()}</strong> kg</span>
+            </div>
           </div>
           <div class="progress-container">
-            <div class="progress-bar pending" style="width: 0%"></div>
-          </div>
-        `;
-      } else if (expectedType === 'export') {
-        card.innerHTML = `
-          <div class="dock-header">
-            <div class="dock-ids">
-              <span class="container-id">${dock.containerId}</span>
-              <span class="muelle-id">MUELLE: ${dock.id}</span>
-              <span class="operator-name">${dock.operator ? 'OP: ' + dock.operator : ''}</span>
-            </div>
-            <span class="destination-badge">${dock.destination}</span>
-          </div>
-          <div class="weight-info">
-            <div class="weight-left">
-              <span><span class="weight-current">0</span> kg</span>
-              <span class="occupancy-text"></span>
-            </div>
-            <span class="weight-max">OBJ: ${maxWeight.toLocaleString()} kg</span>
-          </div>
-          <div class="progress-container">
-            <div class="progress-bar ${statusClass}" style="width: 0%"></div>
+            <div class="progress-bar load-bar" style="width: ${Math.min(volPct, 100)}%"></div>
           </div>
           ${isClosed ? '<div class="closed-banner">VIAJE CERRADO</div>' : ''}
         `;
-      } else if (expectedType === 'import') {
+      } else if (expectedType === 'unload') {
+        // Unload / Descarga (sin la palabra "DESCARGA", solo color naranja)
         card.innerHTML = `
           <div class="dock-header">
             <div class="dock-ids">
+              <span class="muelle-id">${dock.id}</span>
               <span class="container-id">${dock.containerId}</span>
-              <span class="muelle-id">MUELLE: ${dock.id}</span>
-              <span class="operator-name">${dock.operator ? 'OP: ' + dock.operator : ''}</span>
             </div>
           </div>
+          <div class="dock-driver">${driverText}</div>
+          <div class="dock-operator">${operatorText}</div>
           <div class="import-expeditions-list"></div>
           <div class="weight-info import-parts-info">
-            <span>PENDIENTE: <span class="import-pending-parts">0</span> / <span class="import-total-parts">0</span> P.</span>
-            <span class="import-unloaded-percentage">0%</span>
+            <span class="import-parts-text">PENDIENTE: <span class="import-pending-parts">0</span> / <span class="import-total-parts">0</span> P. <span class="import-unloaded-percentage">(0%)</span></span>
           </div>
           <div class="progress-container">
             <div class="progress-bar import-bar ${isClosed ? 'closed' : ''}" style="width: 0%"></div>
           </div>
+          ${isClosed ? '<div class="closed-banner">DESCARGA FINALIZADA</div>' : ''}
+        `;
+      } else {
+        // Pending: Estancia aperturada sin viaje asignado (solo Muelle y Contenedor, fondo gris)
+        card.innerHTML = `
+          <div class="dock-header">
+            <div class="dock-ids">
+              <span class="muelle-id">${dock.id}</span>
+              <span class="container-id">${dock.containerId}</span>
+            </div>
+          </div>
         `;
       }
 
-      targetGrid.appendChild(card);
-    } else {
-      // If card exists, make sure it is in the correct parent grid
-      if (card.parentElement !== targetGrid) {
-        targetGrid.appendChild(card);
-      }
+      sectionDocks.appendChild(card);
     }
 
-    // Target specific updates
-    if (expectedType === 'pending' || expectedType === 'export') {
-      const containerIdEl = card.querySelector('.container-id');
-      const destBadgeEl = card.querySelector('.destination-badge');
-      const weightEl = card.querySelector('.weight-current');
-      const maxWeightEl = card.querySelector('.weight-max');
-      const barEl = card.querySelector('.progress-bar');
-      const textEl = card.querySelector('.occupancy-text');
-      const operatorEl = card.querySelector('.operator-name');
+    // Mantener orden en secuencia en el DOM
+    if (sectionDocks.children[index] !== card) {
+      sectionDocks.insertBefore(card, sectionDocks.children[index] || null);
+    }
 
-      if (containerIdEl.textContent !== dock.containerId) {
+    // Actualizaciones de contenido reactivo
+    if (expectedType === 'load') {
+      const containerIdEl = card.querySelector('.container-id');
+      const muelleIdEl = card.querySelector('.muelle-id');
+      const destBadgeEl = card.querySelector('.destination-badge');
+      const volCurrentEl = card.querySelector('.vol-current');
+      const volPctEl = card.querySelector('.vol-pct');
+      const mlCurrentEl = card.querySelector('.ml-current');
+      const kgCurrentEl = card.querySelector('.kg-current');
+      const kgPctEl = card.querySelector('.kg-pct');
+      const barEl = card.querySelector('.progress-bar');
+      const driverEl = card.querySelector('.dock-driver');
+      const operatorEl = card.querySelector('.dock-operator');
+
+      if (containerIdEl && containerIdEl.textContent !== dock.containerId) {
         containerIdEl.textContent = dock.containerId;
       }
-
-      if (operatorEl && dock.operator) {
-        const opText = 'OP: ' + dock.operator;
-        if (operatorEl.textContent !== opText) operatorEl.textContent = opText;
-      } else if (operatorEl) {
-        operatorEl.textContent = '';
+      if (muelleIdEl && muelleIdEl.textContent !== dock.id) {
+        muelleIdEl.textContent = dock.id;
+      }
+      if (destBadgeEl && destBadgeEl.textContent !== (dock.destination || '')) {
+        destBadgeEl.textContent = dock.destination || '';
+      }
+      if (driverEl && driverEl.textContent !== driverText) {
+        driverEl.textContent = driverText;
+      }
+      if (operatorEl && operatorEl.textContent !== operatorText) {
+        operatorEl.textContent = operatorText;
       }
 
-      const expectedDest = dock.destination || '';
-      if (destBadgeEl && destBadgeEl.textContent !== expectedDest) {
-        destBadgeEl.textContent = expectedDest;
-      }
+      const maxVol = dock.equipmentVolume || (dock.teus === 1 ? 38.0 : 76.0);
+      const currentVol = dock.currentVolume != null ? dock.currentVolume : 0;
+      const volPct = maxVol > 0 ? (currentVol / maxVol) * 100 : 0;
+      const currentML = dock.currentLinealMeters != null ? dock.currentLinealMeters : 0;
 
-      const expectedCardClass = `dock-card ${isPending ? 'pending' : ''} ${isClosed ? 'closed' : ''}`;
-      if (card.className !== expectedCardClass && !card.classList.contains('fade-in')) {
-        card.className = expectedCardClass;
-      }
+      const targetWeightVal = (dock.targetWeightPerTeu !== undefined && dock.targetWeightPerTeu !== null && dock.targetWeightPerTeu > 0) ? dock.targetWeightPerTeu : 10300;
+      const maxWeight = (dock.teus || 2) * targetWeightVal;
+      const weightPct = maxWeight > 0 ? (dock.currentWeight / maxWeight) * 100 : 0;
 
-      const expectedWeight = dock.currentWeight.toLocaleString();
-      if (weightEl.textContent !== expectedWeight) {
-        weightEl.textContent = expectedWeight;
+      if (volCurrentEl && volCurrentEl.textContent !== currentVol.toFixed(1)) {
+        volCurrentEl.textContent = currentVol.toFixed(1);
       }
-
-      const expectedMaxText = `OBJ: ${isPending ? '--' : maxWeight.toLocaleString()} kg`;
-      if (maxWeightEl.textContent !== expectedMaxText) {
-        maxWeightEl.textContent = expectedMaxText;
+      if (volPctEl && volPctEl.textContent !== `(${volPct.toFixed(1)}%)`) {
+        volPctEl.textContent = `(${volPct.toFixed(1)}%)`;
       }
-
-      const targetWidth = `${Math.min(percentage, 100)}%`;
-      if (barEl.style.width !== targetWidth) {
-        barEl.style.width = targetWidth;
+      if (mlCurrentEl && mlCurrentEl.textContent !== currentML.toFixed(2)) {
+        mlCurrentEl.textContent = currentML.toFixed(2);
       }
-
-      const targetClass = `progress-bar ${statusClass}`;
-      if (barEl.className !== targetClass) {
-        barEl.className = targetClass;
+      if (kgCurrentEl && kgCurrentEl.textContent !== dock.currentWeight.toLocaleString()) {
+        kgCurrentEl.textContent = dock.currentWeight.toLocaleString();
       }
-
-      const targetText = isPending ? '' : `(${percentage.toFixed(1)}%)`;
-      if (textEl.textContent !== targetText) {
-        textEl.textContent = targetText;
+      if (kgPctEl && kgPctEl.textContent !== `(${weightPct.toFixed(1)}%)`) {
+        kgPctEl.textContent = `(${weightPct.toFixed(1)}%)`;
       }
-      
-      if (!isPending) {
-        let color = 'var(--text-secondary)';
-        if (percentage < 40) color = 'var(--accent-red)';
-        else if (percentage < 100) color = 'var(--accent-orange)';
-        else color = 'var(--accent-green)';
-        if (textEl.style.color !== color) textEl.style.color = color;
-      } else {
-        if (textEl.style.color !== 'var(--text-secondary)') textEl.style.color = 'var(--text-secondary)';
+      if (barEl) {
+        barEl.style.width = `${Math.min(volPct, 100)}%`;
       }
-    } else if (expectedType === 'import') {
+    } else if (expectedType === 'unload') {
+      // Unload / Descarga
       const containerIdEl = card.querySelector('.container-id');
+      const muelleIdEl = card.querySelector('.muelle-id');
       const listEl = card.querySelector('.import-expeditions-list');
       const pendingEl = card.querySelector('.import-pending-parts');
       const totalEl = card.querySelector('.import-total-parts');
       const pctEl = card.querySelector('.import-unloaded-percentage');
       const barEl = card.querySelector('.import-bar');
-      const operatorEl = card.querySelector('.operator-name');
+      const driverEl = card.querySelector('.dock-driver');
+      const operatorEl = card.querySelector('.dock-operator');
 
-      if (containerIdEl.textContent !== dock.containerId) {
+      if (containerIdEl && containerIdEl.textContent !== dock.containerId) {
         containerIdEl.textContent = dock.containerId;
       }
-
-      if (operatorEl && dock.operator) {
-        const opText = 'OP: ' + dock.operator;
-        if (operatorEl.textContent !== opText) operatorEl.textContent = opText;
-      } else if (operatorEl) {
-        operatorEl.textContent = '';
+      if (muelleIdEl && muelleIdEl.textContent !== dock.id) {
+        muelleIdEl.textContent = dock.id;
+      }
+      if (driverEl && driverEl.textContent !== driverText) {
+        driverEl.textContent = driverText;
+      }
+      if (operatorEl && operatorEl.textContent !== operatorText) {
+        operatorEl.textContent = operatorText;
       }
 
       const totalImportParts = (dock.expeditions || []).reduce((sum, e) => sum + e.totalParts, 0);
@@ -447,88 +450,39 @@ function renderDocks() {
         </div>
       `).join('');
 
-      if (listEl.innerHTML !== expsHtml) {
+      if (listEl && listEl.innerHTML !== expsHtml) {
         listEl.innerHTML = expsHtml;
       }
-
-      if (pendingEl.textContent !== String(pendingImportParts)) {
+      if (pendingEl && pendingEl.textContent !== String(pendingImportParts)) {
         pendingEl.textContent = String(pendingImportParts);
       }
-
-      if (totalEl.textContent !== String(totalImportParts)) {
+      if (totalEl && totalEl.textContent !== String(totalImportParts)) {
         totalEl.textContent = String(totalImportParts);
       }
-
-      const expectedPctText = `${importPercentage.toFixed(1)}%`;
-      if (pctEl.textContent !== expectedPctText) {
-        pctEl.textContent = expectedPctText;
+      if (pctEl && pctEl.textContent !== `(${importPercentage.toFixed(1)}%)`) {
+        pctEl.textContent = `(${importPercentage.toFixed(1)}%)`;
       }
-
-      let pctColor = 'var(--text-secondary)';
-      if (importPercentage < 40) pctColor = 'var(--accent-red)';
-      else if (importPercentage < 100) pctColor = 'var(--accent-orange)';
-      else pctColor = 'var(--accent-green)';
-      if (pctEl.style.color !== pctColor) pctEl.style.color = pctColor;
-
-      const targetWidth = `${Math.min(importPercentage, 100)}%`;
-      if (barEl.style.width !== targetWidth) {
-        barEl.style.width = targetWidth;
+      if (barEl) {
+        barEl.style.width = `${Math.min(importPercentage, 100)}%`;
       }
-
-      // Dynamic color: red → yellow → green based on unloading progress
-      let importBarColor;
-      if (importPercentage < 50) {
-        // Red to Yellow (0-50%)
-        const ratio = importPercentage / 50;
-        const r = 239;
-        const g = Math.round(68 + (158 - 68) * ratio);
-        const b = Math.round(68 + (11 - 68) * ratio);
-        importBarColor = `rgb(${r}, ${g}, ${b})`;
-      } else {
-        // Yellow to Green (50-100%)
-        const ratio = (importPercentage - 50) / 50;
-        const r = Math.round(245 - (245 - 16) * ratio);
-        const g = Math.round(158 + (185 - 158) * ratio);
-        const b = Math.round(11 + (129 - 11) * ratio);
-        importBarColor = `rgb(${r}, ${g}, ${b})`;
+    } else {
+      // Pending: Estancia sin viaje
+      const containerIdEl = card.querySelector('.container-id');
+      const muelleIdEl = card.querySelector('.muelle-id');
+      if (containerIdEl && containerIdEl.textContent !== dock.containerId) {
+        containerIdEl.textContent = dock.containerId;
       }
-      if (!isClosed && barEl.style.backgroundColor !== importBarColor) {
-        barEl.style.backgroundColor = importBarColor;
+      if (muelleIdEl && muelleIdEl.textContent !== dock.id) {
+        muelleIdEl.textContent = dock.id;
       }
     }
   });
-
-  // Toggle visibility of group sections based on grid contents
-  const groupPending = document.getElementById('group-pending');
-  const groupImport = document.getElementById('group-import');
-  const groupBaleares = document.getElementById('group-baleares');
-  const groupCanarias = document.getElementById('group-canarias');
-  const groupPeninsula = document.getElementById('group-peninsula');
-
-  const showPending = gridPending.children.length ? 'flex' : 'none';
-  if (groupPending.style.display !== showPending) groupPending.style.display = showPending;
-
-  const showImport = gridImport.children.length ? 'flex' : 'none';
-  if (groupImport.style.display !== showImport) groupImport.style.display = showImport;
-
-  const showBaleares = gridBaleares.children.length ? 'flex' : 'none';
-  if (groupBaleares.style.display !== showBaleares) groupBaleares.style.display = showBaleares;
-
-  const showCanarias = gridCanarias.children.length ? 'flex' : 'none';
-  if (groupCanarias.style.display !== showCanarias) groupCanarias.style.display = showCanarias;
-
-  const showPeninsula = gridPeninsula.children.length ? 'flex' : 'none';
-  if (groupPeninsula.style.display !== showPeninsula) groupPeninsula.style.display = showPeninsula;
 }
 
 function renderWarehouse() {
-  // Find all destinations present in active (non-completed) expeditions, excluding local delivery (reparto)
   const activeExpeditions = state.expeditions.filter(e => e.pendingParts > 0 && e.destination !== config.delegation);
-
-  // Sort destinations alphabetically
   const destinations = [...new Set(activeExpeditions.map(e => e.destination))].sort((a, b) => a.localeCompare(b));
 
-  // Cleanup old columns that are no longer in the destinations list
   const activeColumnIds = destinations.map(dest => `col-${dest}`);
   Array.from(warehouseContainer.children).forEach(child => {
     if (!activeColumnIds.includes(child.id)) child.remove();
@@ -536,7 +490,15 @@ function renderWarehouse() {
 
   destinations.forEach((dest, index) => {
     let column = document.getElementById(`col-${dest}`);
-    const destExpeditions = activeExpeditions.filter(e => e.destination === dest);
+    const group = getDestinationGroup(dest);
+    const isCanarias = group === 'CANARIAS';
+    const isFilteredDispatched = isCanarias && canariasDispatchedOnly[dest] === true;
+
+    // Canarias: total expediciones disponible con check para filtrar solo despachadas
+    const rawDestExpeditions = activeExpeditions.filter(e => e.destination === dest);
+    const destExpeditions = isFilteredDispatched
+      ? rawDestExpeditions.filter(e => e.isDispatched === true || e.despachada === true)
+      : rawDestExpeditions;
 
     if (!column) {
       column = document.createElement('div');
@@ -545,15 +507,24 @@ function renderWarehouse() {
       column.addEventListener('animationend', () => {
         column.classList.remove('fade-in');
       }, { once: true });
+
       column.innerHTML = `
         <div class="column-header">
           <div class="column-dest-wrapper">
             <span class="column-dest">${dest}</span>
+            ${isCanarias ? `
+              <label class="canarias-dua-label" title="Filtro DUA">
+                <input type="checkbox" id="cb-canarias-${dest}" class="canarias-cb" data-dest="${dest}" ${isFilteredDispatched ? 'checked' : ''}>
+                <span class="dua-text">DUA</span>
+              </label>
+            ` : ''}
           </div>
           <div class="column-stats-container">
             <div class="column-stats main-stats">
-              <span class="stat-badge count">0 EXP</span>
-              <span class="stat-badge weight">0 kg</span>
+              <span class="stat-badge count" title="Total Expediciones">0 EXP</span>
+              <span class="stat-badge weight" title="Total Kilos">0 kg</span>
+              <span class="stat-badge pallets" title="Total Palets">0 PAL</span>
+              <span class="stat-badge packages" title="Total Bultos">0 BLT</span>
             </div>
             <div class="column-stats adr-stats">
               <span class="stat-badge adr-count adr-badge">ADR: 0 EXP</span>
@@ -563,51 +534,101 @@ function renderWarehouse() {
         </div>
         <div class="expedition-list"></div>
       `;
+
+      if (isCanarias) {
+        const cb = column.querySelector(`.canarias-cb[data-dest="${dest}"]`);
+        if (cb) {
+          cb.addEventListener('change', (e) => {
+            canariasDispatchedOnly[dest] = e.target.checked;
+            renderWarehouse();
+          });
+        }
+      }
+    } else {
+      // Si ya existe la columna, verificar si el checkbox de Canarias está al lado del nombre de destino
+      const destWrapper = column.querySelector('.column-dest-wrapper');
+      if (isCanarias && destWrapper) {
+        let duaLabel = destWrapper.querySelector('.canarias-dua-label');
+        if (!duaLabel) {
+          duaLabel = document.createElement('label');
+          duaLabel.className = 'canarias-dua-label';
+          duaLabel.title = 'Filtro DUA';
+          duaLabel.innerHTML = `
+            <input type="checkbox" id="cb-canarias-${dest}" class="canarias-cb" data-dest="${dest}" ${isFilteredDispatched ? 'checked' : ''}>
+            <span class="dua-text">DUA</span>
+          `;
+          destWrapper.appendChild(duaLabel);
+          const cb = duaLabel.querySelector('.canarias-cb');
+          cb.addEventListener('change', (e) => {
+            canariasDispatchedOnly[dest] = e.target.checked;
+            renderWarehouse();
+          });
+        } else {
+          const cb = duaLabel.querySelector('.canarias-cb');
+          if (cb && cb.checked !== isFilteredDispatched) {
+            cb.checked = isFilteredDispatched;
+          }
+        }
+
+        // Eliminar caja antigua si existiese
+        const oldFilterBox = column.querySelector('.canarias-filter-box');
+        if (oldFilterBox) oldFilterBox.remove();
+      }
+
+      // Quitar footer de antiguas si existiese de versiones previas
+      const oldAncientFooter = column.querySelector('.ancient-footer');
+      if (oldAncientFooter) oldAncientFooter.remove();
     }
 
-    // Only insert/move if not already in the correct position in the DOM to avoid unnecessary reflows/flicker
     if (warehouseContainer.children[index] !== column) {
       warehouseContainer.insertBefore(column, warehouseContainer.children[index] || null);
     }
 
     const totalExpCount = destExpeditions.length;
-    const totalExpWeight = destExpeditions.reduce((sum, e) => sum + e.totalWeight, 0);
+    const totalExpWeight = destExpeditions.reduce((sum, e) => sum + (e.totalWeight || 0), 0);
+    const totalPallets = destExpeditions.reduce((sum, e) => sum + (e.pallets || e.palets || 0), 0);
+    const totalPackages = destExpeditions.reduce((sum, e) => sum + (e.packages || e.bultos || 0), 0);
 
     const adrExpeditions = destExpeditions.filter(e => e.isADR);
     const totalAdrCount = adrExpeditions.length;
-    const totalAdrWeight = adrExpeditions.reduce((sum, e) => sum + e.totalWeight, 0);
+    const totalAdrWeight = adrExpeditions.reduce((sum, e) => sum + (e.totalWeight || 0), 0);
 
     const countBadge = column.querySelector('.stat-badge.count');
     const weightBadge = column.querySelector('.stat-badge.weight');
+    const palletsBadge = column.querySelector('.stat-badge.pallets');
+    const packagesBadge = column.querySelector('.stat-badge.packages');
     const adrCountBadge = column.querySelector('.stat-badge.adr-count');
     const adrWeightBadge = column.querySelector('.stat-badge.adr-weight');
 
+    // Muestra solo la cantidad actual (ej. 2 EXP o 3 EXP, nunca 2/3)
     const countText = `${totalExpCount} EXP`;
-    if (countBadge.textContent !== countText) {
+
+    if (countBadge && countBadge.textContent !== countText) {
       countBadge.textContent = countText;
     }
-
-    const weightText = `${totalExpWeight.toLocaleString()} kg`;
-    if (weightBadge.textContent !== weightText) {
-      weightBadge.textContent = weightText;
+    if (weightBadge) {
+      const weightText = `${totalExpWeight.toLocaleString()} kg`;
+      if (weightBadge.textContent !== weightText) weightBadge.textContent = weightText;
     }
-
-    const adrCountText = `ADR: ${totalAdrCount} EXP`;
-    if (adrCountBadge.textContent !== adrCountText) {
-      adrCountBadge.textContent = adrCountText;
+    if (palletsBadge) {
+      const palText = `${totalPallets} PAL`;
+      if (palletsBadge.textContent !== palText) palletsBadge.textContent = palText;
     }
-
-    const adrWeightText = `${totalAdrWeight.toLocaleString()} kg`;
-    if (adrWeightBadge.textContent !== adrWeightText) {
-      adrWeightBadge.textContent = adrWeightText;
+    if (packagesBadge) {
+      const bultText = `${totalPackages} BLT`;
+      if (packagesBadge.textContent !== bultText) packagesBadge.textContent = bultText;
+    }
+    if (adrCountBadge) {
+      const adrCountText = `ADR: ${totalAdrCount} EXP`;
+      if (adrCountBadge.textContent !== adrCountText) adrCountBadge.textContent = adrCountText;
+    }
+    if (adrWeightBadge) {
+      const adrWeightText = `${totalAdrWeight.toLocaleString()} kg`;
+      if (adrWeightBadge.textContent !== adrWeightText) adrWeightBadge.textContent = adrWeightText;
     }
 
     const list = column.querySelector('.expedition-list');
-
-    // ONLY show partial expeditions (started loading)
     const visibleExpeditions = destExpeditions.filter(e => e.pendingParts < e.totalParts);
-
-    // Cleanup cards in list no longer present in visibleExpeditions
     const currentExpIds = visibleExpeditions.map(e => `exp-${e.id}`);
     Array.from(list.children).forEach(child => {
       if (!currentExpIds.includes(child.id)) child.remove();
@@ -615,33 +636,35 @@ function renderWarehouse() {
 
     visibleExpeditions.forEach((exp, expIndex) => {
       let expCard = document.getElementById(`exp-${exp.id}`);
-      const isPartial = true; // since we only show partials anyway
-
       if (!expCard) {
         expCard = document.createElement('div');
         expCard.id = `exp-${exp.id}`;
-        expCard.className = 'expedition-card';
+        expCard.className = 'expedition-card partial';
         expCard.innerHTML = `
           <div class="exp-details">
             <span class="exp-id">${exp.id}${exp.isADR ? ' <span class="adr-label">[ADR]</span>' : ''}</span>
             <span class="exp-route">${exp.origin} &rarr; ${exp.destination}</span>
           </div>
-          <span class="exp-counter"></span>
+          <span class="exp-counter">${exp.pendingParts}/${exp.totalParts} Partidas</span>
         `;
+      } else {
+        const detailsEl = expCard.querySelector('.exp-details');
+        const expectedHtml = `
+          <span class="exp-id">${exp.id}${exp.isADR ? ' <span class="adr-label">[ADR]</span>' : ''}</span>
+          <span class="exp-route">${exp.origin} &rarr; ${exp.destination}</span>
+        `;
+        if (detailsEl.innerHTML.trim() !== expectedHtml.trim()) {
+          detailsEl.innerHTML = expectedHtml;
+        }
       }
 
       if (list.children[expIndex] !== expCard) {
         list.insertBefore(expCard, list.children[expIndex] || null);
       }
 
-      const targetCardClass = `expedition-card ${isPartial ? 'partial' : 'neutral'}`;
-      if (expCard.className !== targetCardClass) {
-        expCard.className = targetCardClass;
-      }
-
       const counterEl = expCard.querySelector('.exp-counter');
       const counterText = `${exp.pendingParts}/${exp.totalParts} Partidas`;
-      if (counterEl.textContent !== counterText) {
+      if (counterEl && counterEl.textContent !== counterText) {
         counterEl.textContent = counterText;
       }
     });
