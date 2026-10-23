@@ -131,8 +131,18 @@ const mockStates = {
           { id: 'EMAD882', origin: 'MAD', destination: 'BCN', pendingParts: 3, totalParts: 10, totalWeight: 2000, volume: 22.0, height: 2.4, isADR: true, pallets: 3, packages: 10, date: getMockDate(1, 2), isDispatched: true }
         ]
       },
+      { id: 'M02', containerId: '', destination: '', currentWeight: 0, teus: 2, equipmentVolume: 76.0, equipmentLength: 13.6, currentVolume: 0, currentLinealMeters: 0, targetWeightPerTeu: 0, tripId: '', status: 'available', hasStay: false },
+      { id: 'M03', containerId: '', destination: '', currentWeight: 0, teus: 2, equipmentVolume: 76.0, equipmentLength: 13.6, currentVolume: 0, currentLinealMeters: 0, targetWeightPerTeu: 0, tripId: '', status: 'available', hasStay: false },
+      { id: 'M04', containerId: '', destination: '', currentWeight: 0, teus: 1, equipmentVolume: 38.0, equipmentLength: 6.0, currentVolume: 0, currentLinealMeters: 0, targetWeightPerTeu: 0, tripId: '', status: 'available', hasStay: false },
+      { id: 'M06', containerId: '', destination: '', currentWeight: 0, teus: 2, equipmentVolume: 76.0, equipmentLength: 13.6, currentVolume: 0, currentLinealMeters: 0, targetWeightPerTeu: 0, tripId: '', status: 'available', hasStay: false },
+      { id: 'M07', containerId: '', destination: '', currentWeight: 0, teus: 2, equipmentVolume: 76.0, equipmentLength: 13.6, currentVolume: 0, currentLinealMeters: 0, targetWeightPerTeu: 0, tripId: '', status: 'available', hasStay: false },
+      { id: 'M08', containerId: '', destination: '', currentWeight: 0, teus: 2, equipmentVolume: 76.0, equipmentLength: 13.6, currentVolume: 0, currentLinealMeters: 0, targetWeightPerTeu: 0, tripId: '', status: 'available', hasStay: false },
+      { id: 'M10', containerId: '', destination: '', currentWeight: 0, teus: 2, equipmentVolume: 76.0, equipmentLength: 13.6, currentVolume: 0, currentLinealMeters: 0, targetWeightPerTeu: 0, tripId: '', status: 'available', hasStay: false },
+      { id: 'M11', containerId: '', destination: '', currentWeight: 0, teus: 2, equipmentVolume: 76.0, equipmentLength: 13.6, currentVolume: 0, currentLinealMeters: 0, targetWeightPerTeu: 0, tripId: '', status: 'available', hasStay: false },
+      { id: 'M13', containerId: '', destination: '', currentWeight: 0, teus: 2, equipmentVolume: 76.0, equipmentLength: 13.6, currentVolume: 0, currentLinealMeters: 0, targetWeightPerTeu: 0, tripId: '', status: 'available', hasStay: false },
+      { id: 'M14', containerId: '', destination: '', currentWeight: 0, teus: 1, equipmentVolume: 38.0, equipmentLength: 6.0, currentVolume: 0, currentLinealMeters: 0, targetWeightPerTeu: 0, tripId: '', status: 'available', hasStay: false },
       { id: 'M15', containerId: 'TASU009999', destination: '', currentWeight: 0, teus: 2, equipmentVolume: 76.0, equipmentLength: 13.6, currentVolume: 0, currentLinealMeters: 0, targetWeightPerTeu: 0, tripId: '', status: 'pending', hasStay: true },
-      { id: 'M16', containerId: '', destination: '', currentWeight: 0, teus: 2, equipmentVolume: 76.0, equipmentLength: 13.6, currentVolume: 0, currentLinealMeters: 0, targetWeightPerTeu: 0, tripId: '', status: 'pending', hasStay: false } // Empty muelle without container/stay
+      { id: 'M16', containerId: '', destination: '', currentWeight: 0, teus: 2, equipmentVolume: 76.0, equipmentLength: 13.6, currentVolume: 0, currentLinealMeters: 0, targetWeightPerTeu: 0, tripId: '', status: 'available', hasStay: false }
     ],
     expeditions: [
       // Baleares: Se muestran todas
@@ -215,7 +225,15 @@ const mockStates = {
         carrierName: '',
         operator: 'Maria C.'
       },
-      { id: 'M04', containerId: '', destination: '', currentWeight: 0, teus: 1, equipmentVolume: 38.0, equipmentLength: 6.0, currentVolume: 0, currentLinealMeters: 0, targetWeightPerTeu: 0, tripId: '', status: 'pending', hasStay: false }
+      { id: 'M04', containerId: '', destination: '', currentWeight: 0, teus: 1, equipmentVolume: 38.0, equipmentLength: 6.0, currentVolume: 0, currentLinealMeters: 0, targetWeightPerTeu: 0, tripId: '', status: 'available', hasStay: false },
+      { id: 'M05', containerId: '', destination: '', currentWeight: 0, teus: 2, equipmentVolume: 76.0, equipmentLength: 13.6, currentVolume: 0, currentLinealMeters: 0, targetWeightPerTeu: 0, tripId: '', status: 'available', hasStay: false },
+      { id: 'M06', containerId: '', destination: '', currentWeight: 0, teus: 2, equipmentVolume: 76.0, equipmentLength: 13.6, currentVolume: 0, currentLinealMeters: 0, targetWeightPerTeu: 0, tripId: '', status: 'available', hasStay: false },
+      { id: 'M07', containerId: '', destination: '', currentWeight: 0, teus: 2, equipmentVolume: 76.0, equipmentLength: 13.6, currentVolume: 0, currentLinealMeters: 0, targetWeightPerTeu: 0, tripId: '', status: 'available', hasStay: false },
+      { id: 'M08', containerId: '', destination: '', currentWeight: 0, teus: 2, equipmentVolume: 76.0, equipmentLength: 13.6, currentVolume: 0, currentLinealMeters: 0, targetWeightPerTeu: 0, tripId: '', status: 'available', hasStay: false },
+      { id: 'M09', containerId: '', destination: '', currentWeight: 0, teus: 2, equipmentVolume: 76.0, equipmentLength: 13.6, currentVolume: 0, currentLinealMeters: 0, targetWeightPerTeu: 0, tripId: '', status: 'available', hasStay: false },
+      { id: 'M10', containerId: '', destination: '', currentWeight: 0, teus: 2, equipmentVolume: 76.0, equipmentLength: 13.6, currentVolume: 0, currentLinealMeters: 0, targetWeightPerTeu: 0, tripId: '', status: 'available', hasStay: false },
+      { id: 'M11', containerId: '', destination: '', currentWeight: 0, teus: 2, equipmentVolume: 76.0, equipmentLength: 13.6, currentVolume: 0, currentLinealMeters: 0, targetWeightPerTeu: 0, tripId: '', status: 'available', hasStay: false },
+      { id: 'M12', containerId: '', destination: '', currentWeight: 0, teus: 2, equipmentVolume: 76.0, equipmentLength: 13.6, currentVolume: 0, currentLinealMeters: 0, targetWeightPerTeu: 0, tripId: '', status: 'available', hasStay: false }
     ],
     expeditions: [
       { id: 'EMAD001', origin: 'MAD', destination: 'BCN', pendingParts: 20, totalParts: 20, totalWeight: 4500, volume: 38.0, height: 2.4, isADR: true, pallets: 6, packages: 20, date: getMockDate(1, 3), isDispatched: true },
@@ -277,8 +295,14 @@ export function getMockState(delegation) {
             { id: `E${possibleDests[1] || 'MAD'}992`, origin: possibleDests[1] || 'MAD', destination: delegation, pendingParts: 2, totalParts: 6, totalWeight: 800, volume: 9.0, height: 2.2, isADR: true, pallets: 1, packages: 6, date: getMockDate(1, 2), isDispatched: true }
           ]
         },
-        { id: 'M03', containerId: `CONT-${delegation}3`, destination: '', currentWeight: 0, teus: 2, equipmentVolume: 76.0, equipmentLength: 13.6, currentVolume: 0, currentLinealMeters: 0, targetWeightPerTeu: 0, tripId: '', status: 'pending', hasStay: false },
-        { id: 'M04', containerId: '', destination: '', currentWeight: 0, teus: 2, equipmentVolume: 76.0, equipmentLength: 13.6, currentVolume: 0, currentLinealMeters: 0, targetWeightPerTeu: 0, tripId: '', status: 'pending', hasStay: false }
+        { id: 'M03', containerId: `CONT-${delegation}3`, destination: '', currentWeight: 0, teus: 2, equipmentVolume: 76.0, equipmentLength: 13.6, currentVolume: 0, currentLinealMeters: 0, targetWeightPerTeu: 0, tripId: '', status: 'available', hasStay: false },
+        { id: 'M04', containerId: '', destination: '', currentWeight: 0, teus: 2, equipmentVolume: 76.0, equipmentLength: 13.6, currentVolume: 0, currentLinealMeters: 0, targetWeightPerTeu: 0, tripId: '', status: 'available', hasStay: false },
+        { id: 'M05', containerId: '', destination: '', currentWeight: 0, teus: 2, equipmentVolume: 76.0, equipmentLength: 13.6, currentVolume: 0, currentLinealMeters: 0, targetWeightPerTeu: 0, tripId: '', status: 'available', hasStay: false },
+        { id: 'M06', containerId: '', destination: '', currentWeight: 0, teus: 2, equipmentVolume: 76.0, equipmentLength: 13.6, currentVolume: 0, currentLinealMeters: 0, targetWeightPerTeu: 0, tripId: '', status: 'available', hasStay: false },
+        { id: 'M07', containerId: '', destination: '', currentWeight: 0, teus: 2, equipmentVolume: 76.0, equipmentLength: 13.6, currentVolume: 0, currentLinealMeters: 0, targetWeightPerTeu: 0, tripId: '', status: 'available', hasStay: false },
+        { id: 'M08', containerId: '', destination: '', currentWeight: 0, teus: 2, equipmentVolume: 76.0, equipmentLength: 13.6, currentVolume: 0, currentLinealMeters: 0, targetWeightPerTeu: 0, tripId: '', status: 'available', hasStay: false },
+        { id: 'M09', containerId: '', destination: '', currentWeight: 0, teus: 2, equipmentVolume: 76.0, equipmentLength: 13.6, currentVolume: 0, currentLinealMeters: 0, targetWeightPerTeu: 0, tripId: '', status: 'available', hasStay: false },
+        { id: 'M10', containerId: '', destination: '', currentWeight: 0, teus: 2, equipmentVolume: 76.0, equipmentLength: 13.6, currentVolume: 0, currentLinealMeters: 0, targetWeightPerTeu: 0, tripId: '', status: 'available', hasStay: false }
       ],
       expeditions: [
         { id: `E${delegation}001`, origin: delegation, destination: possibleDests[0] || 'PMI', pendingParts: 10, totalParts: 10, totalWeight: 1500, volume: 15.0, height: 2.2, isADR: Math.random() > 0.5, pallets: 3, packages: 10, date: getMockDate(2, 0), isDispatched: true },

@@ -175,12 +175,170 @@ body {
   overflow: hidden; /* Prevent full page scroll */
 }
 
+/* Docks Toolbar */
+.docks-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.15rem 0.25rem;
+  margin-bottom: -0.65rem;
+}
+
+.docks-toolbar-info {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.docks-toolbar-title {
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.docks-counter-badge {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.15rem 0.5rem;
+  border-radius: 12px;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+
+/* Botón Pequeño de Filtro Ocupados */
+.btn-filter-occupied {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+}
+
+.btn-filter-occupied .filter-check {
+  font-size: 0.75rem;
+  opacity: 0.4;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.btn-filter-occupied:hover {
+  background: var(--border-color);
+  color: var(--text-primary);
+  transform: translateY(-1px);
+}
+
+.btn-filter-occupied.active {
+  background: #091197;
+  color: #ffffff;
+  border-color: #03A9EC;
+  box-shadow: 0 0 10px rgba(3, 169, 236, 0.35);
+}
+
+.btn-filter-occupied.active .filter-check {
+  opacity: 1;
+  color: #03A9EC;
+  transform: scale(1.1);
+}
+
+[data-theme="dark"] .btn-filter-occupied.active {
+  background: #03A9EC;
+  color: #091197;
+  border-color: #38bdf8;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+}
+
+[data-theme="dark"] .btn-filter-occupied.active .filter-check {
+  color: #091197;
+}
+
 /* Dock Section - Sequential Grid */
 .section-docks {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(315px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(295px, 1fr));
+  gap: 0.85rem;
   width: 100%;
+  max-height: 40vh;
+  overflow-y: auto;
+  padding-right: 0.35rem;
+}
+
+.section-docks::-webkit-scrollbar {
+  width: 6px;
+}
+
+.section-docks::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.section-docks::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+/* Muelle Libre / Disponible sin estancia */
+.dock-card.empty {
+  background: var(--bg-secondary);
+  border: 1px dashed var(--border-color);
+  opacity: 0.65;
+  color: var(--text-secondary);
+  min-height: 110px;
+  justify-content: space-between;
+}
+
+.dock-card.empty:hover {
+  opacity: 0.95;
+  border-color: #03A9EC;
+}
+
+.dock-card.empty .muelle-id {
+  color: var(--text-secondary);
+  font-weight: 800;
+  font-size: 1.15rem;
+}
+
+.dock-empty-tag {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+}
+
+.dock-empty-body {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.4rem 0;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.dock-empty-indicator {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #94a3b8;
+  opacity: 0.6;
+}
+
+.dock-empty-label {
+  font-weight: 500;
 }
 
 /* Dock Card Base */

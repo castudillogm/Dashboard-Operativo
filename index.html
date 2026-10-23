@@ -30,8 +30,19 @@
   </header>
 
   <main class="dashboard-content">
+    <div class="docks-toolbar">
+      <div class="docks-toolbar-info">
+        <span class="docks-toolbar-title">ESTADO DE MUELLES</span>
+        <span id="docks-counter-badge" class="docks-counter-badge">-- / --</span>
+      </div>
+      <button id="btn-filter-occupied" class="btn-filter-occupied" type="button" title="Filtrar solo muelles con estancia aperturada">
+        <span class="filter-check">✓</span>
+        <span>Ocupados</span>
+      </button>
+    </div>
+
     <section id="section-docks" class="section-docks">
-      <!-- Active docks with stay (ordered sequentially) will be rendered here -->
+      <!-- Docks rendered here -->
     </section>
 
     <!-- SECCIÓN ALMACÉN (CENTER) -->

@@ -385,14 +385,16 @@
   <!-- 3. MÓDULO SUPERIOR: MUELLES -->
   <div class="page-break"></div>
   <h2>3. Módulo Superior: Monitor de Muelles de Carga y Descarga</h2>
-  <p>La sección superior del dashboard presenta los muelles operativos en una cuadrícula continua horizontal ordenada numéricamente (<code>M01</code>, <code>M02</code>, <code>M05</code>, <code>M09</code>, <code>M12</code>, <code>M15</code>...).</p>
+  <p>La sección superior del dashboard presenta todos los muelles físicos de la delegación de origen en una cuadrícula continua horizontal ordenada numéricamente (<code>M01</code>, <code>M02</code>, <code>M03</code>, <code>M04</code>...).</p>
 
   <div class="alert alert-info">
-    <strong>📌 Regla Primordial de Estancias:</strong>
-    Exclusivamente se muestran aquellos muelles que disponen de una <strong>estancia física abierta</strong>. Los muelles libres o sin estancia no ocupan espacio visual en el monitor.
+    <strong>📌 Visualización Total y Filtro de Muelles Ocupados:</strong>
+    Por defecto se visualiza la totalidad de los muelles pertenecientes a la delegación de origen, mostrando tanto los muelles con actividad como los muelles disponibles (libres sin estancia).
+    <br><br>
+    En la barra de herramientas superior se dispone de un botón filtro compacto <strong><code>[✓ Ocupados]</code></strong> que, al ser pulsado, filtra de manera instantánea y muestra <strong>únicamente aquellos muelles que disponen de una estancia física abierta</strong>.
   </div>
 
-  <h3>3.1. Los Tres Estados Visuales del Muelle</h3>
+  <h3>3.1. Estados Visuales del Muelle</h3>
   <table>
     <tr><th>Estado Operativo</th><th>Identificación Visual</th><th>Contenido y Comportamiento en Pantalla</th></tr>
     <tr>
@@ -437,6 +439,17 @@
             </ol>
           </li>
           <li>No muestra transporte, ni operador, ni métricas volumétricas, ni barras de progreso.</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Disponible (Sin Estancia)</strong></td>
+      <td><span class="badge-preview" style="color:var(--gray-500);background:var(--gray-50);border-color:var(--gray-300);">Borde Punteado</span></td>
+      <td>
+        <ul>
+          <li>Muelle libre sin contenedor acoplado ni estancia física abierta en el ERP.</li>
+          <li>Muestra el número de muelle (ej. <code>M02</code>), insignia <code>DISPONIBLE</code> y estado <code>Sin estancia</code>.</li>
+          <li>Se oculta automáticamente al activar el botón filtro <code>[✓ Ocupados]</code>.</li>
         </ul>
       </td>
     </tr>

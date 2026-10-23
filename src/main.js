@@ -4,6 +4,7 @@ import { fetchDashboardData, fetchDelegations, config } from './api.js';
 let state = null;
 let pollingInterval = null;
 const canariasDispatchedOnly = {};
+let filterOccupiedOnly = false;
 
 // Elements
 const sectionDocks = document.getElementById('section-docks');
@@ -14,6 +15,7 @@ const sunIcon = document.getElementById('theme-icon-sun');
 const moonIcon = document.getElementById('theme-icon-moon');
 const statusIndicator = document.getElementById('connection-status');
 const statusText = statusIndicator.querySelector('.status-text');
+const btnFilterOccupied = document.getElementById('btn-filter-occupied');
 
 // PIN Modal Elements
 const pinModal = document.getElementById('pin-modal');
@@ -46,6 +48,15 @@ async function init() {
     const newTheme = currentTheme === 'light' ? 'dark' : 'light';
     setTheme(newTheme);
   });
+
+  // Filter Occupied Docks Toggle
+  if (btnFilterOccupied) {
+    btnFilterOccupied.addEventListener('click', () => {
+      filterOccupiedOnly = !filterOccupiedOnly;
+      btnFilterOccupied.classList.toggle('active', filterOccupiedOnly);
+      renderDocks();
+    });
+  }
 
   // Connection Indicator -> Opens PIN Modal first
   statusIndicator.addEventListener('click', () => {
@@ -226,34 +237,49 @@ function render() {
 function renderDocks() {
   if (!sectionDocks || !state || !state.docks) return;
 
-  // 1. Filtrar SOLO los muelles que tienen estancia aperturada
-  const activeDocks = state.docks.filter(dock => {
+  // Ordenados en secuencia continua (M01, M02, M03, M04...)
+  const allDocks = [...state.docks].sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true }));
+
+  // Muelles con estancia física aperturada y contenedor presente
+  const occupiedDocks = allDocks.filter(dock => {
     if (dock.hasStay === false) return false;
     if (!dock.containerId || dock.containerId.trim() === '') return false;
     return true;
   });
 
-  // Ordenados en secuencia continua (M01, M02, M05, etc.)
-  activeDocks.sort((a, b) => a.id.localeCompare(b.id, undefined, { numeric: true }));
+  // Actualizar contador en la barra de control de muelles
+  const counterBadge = document.getElementById('docks-counter-badge');
+  if (counterBadge) {
+    counterBadge.textContent = filterOccupiedOnly
+      ? `${occupiedDocks.length} Ocupados`
+      : `${occupiedDocks.length} / ${allDocks.length} Ocupados`;
+  }
 
-  const activeDockIds = activeDocks.map(dock => `dock-${dock.id}`);
+  // Lista según el filtro de "Ocupados"
+  const displayedDocks = filterOccupiedOnly ? occupiedDocks : allDocks;
+  const displayedDockIds = displayedDocks.map(dock => `dock-${dock.id}`);
 
-  // Limpiar muelles que ya no tienen estancia
+  // Limpiar muelles que no correspondan a la vista actual
   Array.from(sectionDocks.children).forEach(child => {
-    if (!activeDockIds.includes(child.id)) child.remove();
+    if (!displayedDockIds.includes(child.id)) child.remove();
   });
 
-  activeDocks.forEach((dock, index) => {
+  displayedDocks.forEach((dock, index) => {
     let card = document.getElementById(`dock-${dock.id}`);
-    const hasTrip = Boolean((dock.destination && dock.destination.trim() !== '') || (dock.tripId && dock.tripId.trim() !== ''));
+    const isOccupied = Boolean(dock.hasStay !== false && dock.containerId && dock.containerId.trim() !== '');
     const isClosed = dock.status === 'closed' || dock.tripStatus === 'closed';
-    
-    let expectedType = 'pending';
-    if (hasTrip) {
-      const isImport = dock.destination === config.delegation || !!dock.isImport || dock.type === 'unload';
-      expectedType = isImport ? 'unload' : 'load';
+
+    let expectedType = 'empty';
+    if (isOccupied) {
+      const hasTrip = Boolean((dock.destination && dock.destination.trim() !== '') || (dock.tripId && dock.tripId.trim() !== ''));
+      if (hasTrip) {
+        const isImport = dock.destination === config.delegation || !!dock.isImport || dock.type === 'unload';
+        expectedType = isImport ? 'unload' : 'load';
+      } else {
+        expectedType = 'pending';
+      }
     } else {
-      expectedType = 'pending';
+      expectedType = 'empty';
     }
 
     // Chofer interno (Matrícula) vs Transportista externo (Chófer / Transportista) - Sin colores de pill ni iconos
@@ -275,7 +301,21 @@ function renderDocks() {
         card.classList.remove('fade-in');
       }, { once: true });
 
-      if (expectedType === 'load') {
+      if (expectedType === 'empty') {
+        // Muelle Libre / Disponible sin estancia
+        card.innerHTML = `
+          <div class="dock-header">
+            <div class="dock-ids">
+              <span class="muelle-id">${dock.id}</span>
+            </div>
+            <span class="dock-empty-tag">DISPONIBLE</span>
+          </div>
+          <div class="dock-empty-body">
+            <span class="dock-empty-indicator"></span>
+            <span class="dock-empty-label">Sin estancia</span>
+          </div>
+        `;
+      } else if (expectedType === 'load') {
         const maxVol = dock.equipmentVolume || (dock.teus === 1 ? 38.0 : 76.0);
         const currentVol = dock.currentVolume != null ? dock.currentVolume : 0;
         const volPct = maxVol > 0 ? (currentVol / maxVol) * 100 : 0;
@@ -358,7 +398,12 @@ function renderDocks() {
     }
 
     // Actualizaciones de contenido reactivo
-    if (expectedType === 'load') {
+    if (expectedType === 'empty') {
+      const muelleIdEl = card.querySelector('.muelle-id');
+      if (muelleIdEl && muelleIdEl.textContent !== dock.id) {
+        muelleIdEl.textContent = dock.id;
+      }
+    } else if (expectedType === 'load') {
       const containerIdEl = card.querySelector('.container-id');
       const muelleIdEl = card.querySelector('.muelle-id');
       const destBadgeEl = card.querySelector('.destination-badge');
