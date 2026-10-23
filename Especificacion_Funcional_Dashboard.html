@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Especificación Funcional — Dashboard Operativo de Almacén</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+    
+    :root {
+      --gm-blue-dark: #091197;
+      --gm-blue-light: #03A9EC;
+      --gm-orange: #F75600;
+      --blue: #2563eb;
+      --blue-light: #eff6ff;
+      --green: #059669;
+      --green-light: #ecfdf5;
+      --orange: #d97706;
+      --orange-light: #fffbeb;
+      --red: #dc2626;
+      --red-light: #fef2f2;
+      --purple: #7c3aed;
+      --purple-light: #f5f3ff;
+      --gray-50: #f8fafc;
+      --gray-100: #f1f5f9;
+      --gray-200: #e2e8f0;
+      --gray-300: #cbd5e1;
+      --gray-500: #64748b;
+      --gray-700: #334155;
+      --gray-900: #0f172a;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      color: var(--gray-900);
+      line-height: 1.65;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 2.5rem;
+      background: white;
+    }
+
+    @media print {
+      body { padding: 0; font-size: 11px; }
+      .page-break { page-break-before: always; }
+      .no-print { display: none; }
+    }
+
+    /* Header */
+    .doc-header {
+      text-align: center;
+      padding: 2.5rem 1rem;
+      border-bottom: 4px solid var(--gm-blue-dark);
+      margin-bottom: 2.5rem;
+      background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+      border-radius: 12px 12px 0 0;
+    }
+    .doc-header .org-badge {
+      display: inline-block;
+      background: var(--gm-blue-dark);
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 800;
+      padding: 0.25rem 0.8rem;
+      border-radius: 20px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+    }
+    .doc-header h1 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--gm-blue-dark);
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.02em;
+    }
+    .doc-header .subtitle {
+      font-size: 1.15rem;
+      color: var(--gray-500);
+      font-weight: 500;
+    }
+    .doc-header .meta {
+      margin-top: 1.5rem;
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      font-size: 0.85rem;
+      color: var(--gray-700);
+      flex-wrap: wrap;
+      background: white;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      border: 1px solid var(--gray-200);
+      width: fit-content;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* Headings */
+    h2 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--gm-blue-dark);
+      margin: 2.5rem 0 1rem 0;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--gray-200);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--gray-900);
+      margin: 1.75rem 0 0.75rem 0;
+    }
+    h4 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--gray-700);
+      margin: 1rem 0 0.5rem 0;
+    }
+    p { margin-bottom: 0.85rem; color: var(--gray-700); font-size: 0.95rem; }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.25rem 0;
+      font-size: 0.88rem;
+      border: 1px solid var(--gray-200);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    th {
+      background: var(--gm-blue-dark);
+      color: white;
+      padding: 0.75rem 1rem;
+      text-align: left;
+      font-weight: 700;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    td {
+      padding: 0.7rem 1rem;
+      border-bottom: 1px solid var(--gray-200);
+      vertical-align: top;
+      color: var(--gray-700);
+    }
+    tr:nth-child(even) { background: var(--gray-50); }
+    td strong { color: var(--gray-900); }
+    td code {
+      background: var(--gray-100);
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      color: var(--gm-blue-dark);
+      font-weight: 600;
+    }
+
+    /* Alert boxes */
+    .alert {
+      padding: 1.15rem 1.35rem;
+      border-radius: 8px;
+      margin: 1.25rem 0;
+      border-left: 4px solid;
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+    .alert-info { background: var(--blue-light); border-color: var(--blue); }
+    .alert-warning { background: var(--orange-light); border-color: var(--orange); }
+    .alert-danger { background: var(--red-light); border-color: var(--red); }
+    .alert-success { background: var(--green-light); border-color: var(--green); }
+    .alert strong { display: block; margin-bottom: 0.35rem; color: var(--gray-900); }
+
+    /* Badges */
+    .badge-preview {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.25rem 0.65rem;
+      border-radius: 5px;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 0.8rem;
+      border: 1px solid transparent;
+    }
+    .badge-load { color: #0369a1; background: #e0f2fe; border-color: #38bdf8; }
+    .badge-unload { color: #c2410c; background: #ffedd5; border-color: #fb923c; }
+    .badge-pending { color: #475569; background: #f1f5f9; border-color: #94a3b8; }
+    .badge-adr { color: #000000; background: #fef08a; border-color: #facc15; }
+
+    /* Feature Cards Grid */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+    .feature-card {
+      border: 1px solid var(--gray-200);
+      border-radius: 8px;
+      padding: 1.25rem;
+      background: white;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    }
+    .feature-card h4 {
+      color: var(--gm-blue-dark);
+      font-size: 1rem;
+      margin-bottom: 0.4rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .feature-card p {
+      font-size: 0.85rem;
+      color: var(--gray-500);
+      margin-bottom: 0;
+    }
+
+    /* Formula highlight */
+    .formula-box {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 1rem 1.25rem;
+      border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.86rem;
+      margin: 0.75rem 0;
+      border-left: 4px solid var(--gm-blue-light);
+    }
+
+    /* Flow diagram */
+    .flow {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      margin: 1.5rem 0;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .flow-step {
+      background: var(--blue-light);
+      border: 1px solid var(--blue);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      text-align: center;
+      max-width: 170px;
+      color: var(--gray-900);
+    }
+    .flow-arrow {
+      font-size: 1.4rem;
+      color: var(--blue);
+      padding: 0 0.25rem;
+      font-weight: 800;
+    }
+
+    /* Checklist */
+    .checklist {
+      list-style: none;
+      padding: 0;
+      margin: 1rem 0;
+    }
+    .checklist li {
+      padding: 0.6rem 0;
+      border-bottom: 1px solid var(--gray-200);
+      font-size: 0.9rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+      color: var(--gray-700);
+    }
+    .checklist li::before {
+      content: "✔";
+      color: var(--green);
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    /* Semaphores */
+    .semaphore {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+      margin: 1.5rem 0;
+    }
+    .sem-box {
+      padding: 1.25rem;
+      border-radius: 8px;
+      border: 1px solid var(--gray-200);
+      background: white;
+    }
+    .sem-box h4 { margin-bottom: 0.75rem; font-size: 0.95rem; color: var(--gm-blue-dark); }
+    .sem-item {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin: 0.45rem 0;
+      font-size: 0.85rem;
+      color: var(--gray-700);
+    }
+    .dot {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+    .dot-blue { background: #38bdf8; }
+    .dot-orange { background: #fb923c; }
+    .dot-green { background: #10b981; }
+    .dot-red { background: #ef4444; }
+    .dot-gray { background: #94a3b8; }
+
+    /* Footer */
+    .doc-footer {
+      margin-top: 3.5rem;
+      padding-top: 1.5rem;
+      border-top: 2px solid var(--gray-200);
+      text-align: center;
+      font-size: 0.82rem;
+      color: var(--gray-500);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- PRINT BUTTON -->
+  <div class="no-print" style="text-align:right; margin-bottom:1rem;">
+    <button onclick="window.print()" style="background:var(--gm-blue-dark);color:white;border:none;padding:0.75rem 1.5rem;border-radius:8px;font-weight:700;cursor:pointer;font-size:0.9rem;display:inline-flex;align-items:center;gap:0.5rem;">
+      📄 Guardar / Imprimir PDF (Ctrl+P)
+    </button>
+  </div>
+
+  <!-- HEADER -->
+  <div class="doc-header">
+    <div class="org-badge">GRUPO MARÍTIMA DEL MEDITERRÁNEO — GRUPOMAR</div>
+    <h1>📋 Especificación Funcional del Producto</h1>
+    <div class="subtitle">Dashboard Operativo de Almacén — Versión Final de Producción</div>
+    <div class="meta">
+      <span>📌 Versión: <strong>5.0 (Definitiva)</strong></span>
+      <span>📅 Fecha: <strong>Octubre 2026</strong></span>
+      <span>🏢 Ámbito: <strong>Nave Logística y Control de Tráfico</strong></span>
+      <span>🔒 Estado: <strong>Aprobado para Operaciones</strong></span>
+    </div>
+  </div>
+
+  <!-- 1. OBJETIVO Y VISIÓN -->
+  <h2>1. Objetivo y Filosofía del Producto</h2>
+  <p>El <strong>Dashboard Operativo de Almacén</strong> es una aplicación web interactiva de monitorización en tiempo real diseñada para instalarse en pantallas industriales, monitores de nave y puestos de control de tráfico logístico. Su propósito primordial es dotar a los jefes de almacén y operarios de una visibilidad instantánea, continua y libre de distracciones sobre el estado de la carga de contenedores y el avance de expediciones físicas.</p>
+
+  <div class="features-grid">
+    <div class="feature-card">
+      <h4>⚡ Tiempo Real Reactivo</h4>
+      <p>Actualización periódica continua (polling) que actualiza el DOM de forma reactiva sin parpadeos, recargas de página ni pérdida de estado.</p>
+    </div>
+    <div class="feature-card">
+      <h4>🏢 Soporte Multi-Delegación</h4>
+      <p>Permite conmutar entre cualquier centro logístico (BCN, MAD, LPA, SCT, PMI, etc.) con aislamiento total de datos de almacén.</p>
+    </div>
+    <div class="feature-card">
+      <h4>📺 Visualización Andon</h4>
+      <p>Códigos cromáticos universales para identificar inmediatamente muelles en carga, descarga y estancias pendientes sin necesidad de leer textos extensos.</p>
+    </div>
+    <div class="feature-card">
+      <h4>🛡️ Acceso Seguro</h4>
+      <p>Protección con PIN de seguridad para configuración técnica, selección de delegación y conmutación entre API Real y Simulación.</p>
+    </div>
+  </div>
+
+  <!-- 2. DIAGRAMA DE FLUJO OPERATIVO -->
+  <h2>2. Flujo Operativo del Almacén</h2>
+  <div class="flow">
+    <div class="flow-step">1. Llegada del Contenedor<br><small>(Acoplamiento Muelle)</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">2. Apertura de Estancia<br><small>(Estado en Gris)</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">3. Asignación de Viaje<br><small>(Carga Celeste / Descarga Naranja)</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">4. Escaneo Operativo<br><small>(Descuento de Partidas)</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step">5. Cierre y Salida<br><small>(Fin de Estancia)</small></div>
+  </div>
+
+  <!-- 3. MÓDULO SUPERIOR: MUELLES -->
+  <div class="page-break"></div>
+  <h2>3. Módulo Superior: Monitor de Muelles de Carga y Descarga</h2>
+  <p>La sección superior del dashboard presenta los muelles operativos en una cuadrícula continua horizontal ordenada numéricamente (<code>M01</code>, <code>M02</code>, <code>M05</code>, <code>M09</code>, <code>M12</code>, <code>M15</code>...).</p>
+
+  <div class="alert alert-info">
+    <strong>📌 Regla Primordial de Estancias:</strong>
+    Exclusivamente se muestran aquellos muelles que disponen de una <strong>estancia física abierta</strong> (<code>hasStay === true</code> y contenedor presente). Los muelles libres o sin estancia no ocupan espacio visual en el monitor.
+  </div>
+
+  <h3>3.1. Los Tres Estados Visuales del Muelle</h3>
+  <table>
+    <tr><th>Estado Operativo</th><th>Identificación Visual</th><th>Contenido y Comportamiento en Pantalla</th></tr>
+    <tr>
+      <td><strong>Carga (Exportación)</strong></td>
+      <td><span class="badge-preview badge-load">Fondo Celeste Claro (#e0f2fe)</span><br>Borde azul cielo (<code>#38bdf8</code>)</td>
+      <td>
+        <ul>
+          <li><strong>Cabecera:</strong> Código del muelle sin prefijos (ej. <code>M01</code>), número de contenedor ISO en tamaño prominente (ej. <code>TASU004412</code>) e insignia de destino azul marino (ej. <code>PMI</code>).</li>
+          <li><strong>Línea de Transporte:</strong> <code>MATRÍCULA: XXXX-YYY</code> (chófer interno) o <code>TRANSP.: Nombre</code> (transportista externo).</li>
+          <li><strong>Línea de Operador:</strong> Nombre del operario de almacén asignado a la carga (<code>OPERADOR: Nombre</code>).</li>
+          <li><strong>Línea de Volumen:</strong> <code>VOLUMEN: (XX.X%)&nbsp;&nbsp;&nbsp;&nbsp;XX.X m³</code>.</li>
+          <li><strong>Línea de Ocupación:</strong> <code>OCUPACIÓN: (XX.X%)&nbsp;&nbsp;&nbsp;&nbsp;XX.XX m lin.</code>.</li>
+          <li><strong>Línea de Kilos Efectivos:</strong> <code>KILOS: (XX.X%)&nbsp;&nbsp;&nbsp;&nbsp;XXXX kg</code>.</li>
+          <li><strong>Barra de Progreso:</strong> Degradado celeste a azul indicando la evolución de la carga.</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Descarga (Importación)</strong></td>
+      <td><span class="badge-preview badge-unload">Fondo Naranja Claro (#ffedd5)</span><br>Borde naranja (<code>#fb923c</code>)</td>
+      <td>
+        <ul>
+          <li><strong>Identificación:</strong> Se identifica exclusivamente mediante el color naranja claro. <strong>No contiene la palabra ni insignia "DESCARGA"</strong> para evitar sobrecarga visual.</li>
+          <li><strong>Cabecera:</strong> Código del muelle (ej. <code>M12</code>) y contenedor (ej. <code>TASU005678</code>).</li>
+          <li><strong>Transporte y Operador:</strong> Transportista o matrícula, y operario que efectúa el vaciado.</li>
+          <li><strong>Listado de Expediciones:</strong> Lista de partidas a descargar con procedencia y contador de partidas (ej. <code>EMAD881   MAD &rarr; BCN   5/8 P.</code>).</li>
+          <li><strong>Línea de Pendientes:</strong> Ubicada en una sola línea horizontal: <code>PENDIENTE: X / Y P. (XX.X%)</code>.</li>
+          <li><strong>Barra de Progreso de Descarga:</strong> Evolución porcentual conforme se vacía la carga.</li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td><strong>En Muelle (Estancia sin Viaje)</strong></td>
+      <td><span class="badge-preview badge-pending">Fondo Gris Neutro (#f1f5f9)</span><br>Borde gris pizarra (<code>#94a3b8</code>)</td>
+      <td>
+        <ul>
+          <li>Representa un contenedor acoplado con estancia aperturada pero que aún no tiene viaje o destino asignado en el ERP.</li>
+          <li>Muestra <strong>únicamente</strong> dos datos:
+            <ol>
+              <li>Identificador de muelle (ej. <code>M15</code>).</li>
+              <li>Número de contenedor acoplado (ej. <code>TASU009999</code>).</li>
+            </ol>
+          </li>
+          <li>No muestra transporte, ni operador, ni métricas volumétricas, ni barras de progreso.</li>
+        </ul>
+      </td>
+    </tr>
+  </table>
+
+  <!-- 4. MÓDULO INFERIOR: COLUMNAS -->
+  <div class="page-break"></div>
+  <h2>4. Módulo Inferior: Cuadrícula de Expediciones por Destino</h2>
+  <p>La mitad inferior organiza las expediciones físicas en almacén en columnas dinámicas clasificadas según la plaza de destino final (<code>IBZ</code>, <code>LPA</code>, <code>MAD</code>, <code>MAH</code>, <code>PMI</code>, <code>SCT</code>...).</p>
+
+  <h3>4.1. Cabecera y Estadísticas Totales del Destino</h3>
+  <p>Cada columna cuenta con una cabecera azul marino (<code>#091197</code>) con el código de la plaza en tipografía de alto impacto y un panel de métricas consolidadas:</p>
+  <ul>
+    <li><strong>Total Expediciones:</strong> <code>X EXP</code> (número de albaranes o envíos presentes en la plaza).</li>
+    <li><strong>Total Peso:</strong> <code>XXXX kg</code> (suma del peso de todas las expediciones de la plaza).</li>
+    <li><strong>Total Palets:</strong> <code>X PAL</code>.</li>
+    <li><strong>Total Bultos:</strong> <code>X BLT</code>.</li>
+    <li><strong>Bloque de Mercancías Peligrosas (ADR):</strong> Insignia amarilla de seguridad con el desglose de <code>ADR: X EXP</code> y <code>XXXX kg</code>.</li>
+  </ul>
+
+  <h3>4.2. Tratamiento Especial de Plazas de Canarias (LPA y SCT)</h3>
+  <div class="alert alert-success">
+    <strong>🌴 Checkbox Interactivo DUA (Despacho Aduanero):</strong>
+    En las columnas correspondientes a Canarias, se integra directamente en la cabecera azul el selector <code>[✓] DUA</code>.
+    <br><br>
+    Al marcar el check, el dashboard filtra instantáneamente y visualiza <strong>únicamente las expediciones que cuentan con despacho aduanero completado</strong> (<code>isDispatched: true</code>). En este estado, el contador muestra el número absoluto exacto (por ejemplo <code>2 EXP</code>, sin fracciones).
+  </div>
+
+  <h3>4.3. Listado de Expediciones en Carga Parcial</h3>
+  <p>Bajo la cabecera se listan las tarjetas de expediciones individuales siguiendo un principio de ergonomía visual:</p>
+  <ul>
+    <li><strong>Visibilidad Inteligente:</strong> Solo se visualizan aquellas expediciones cuya carga ya ha comenzado pero aún no ha concluido (<code>pendingParts &lt; totalParts</code>). Las expediciones sin iniciar o totalmente cargadas no ocupan espacio.</li>
+    <li><strong>Resaltado ADR:</strong> Las partidas que contienen mercancías peligrosas muestran la etiqueta roja/amarilla <code>[ADR]</code> para advertencia de los operarios de carretilla.</li>
+    <li><strong>Enrutamiento:</strong> Indica la delegación de origen y la de destino (ej. <code>BCN &rarr; LPA</code>), permitiendo identificar mercancía en tránsito inter-delegación.</li>
+    <li><strong>Contador de Partidas:</strong> Muestra la relación de avance de escaneo (ej. <code>15/30 Partidas</code>).</li>
+  </ul>
+
+  <!-- 5. FÓRMULAS DE CÁLCULO Y ALGORITMOS -->
+  <div class="page-break"></div>
+  <h2>5. Fórmulas de Cálculo y Lógica Matemática</h2>
+  <p>El dashboard efectúa las siguientes transformaciones matemáticas estandarizadas para reflejar con exactitud la ocupación espacial y ponderal del contenedor:</p>
+
+  <h3>5.1. Volumen y Porcentaje de Ocupación Cúbica</h3>
+  <div class="formula-box">
+    Volumen por Partida Cargada: VolPartida = (PartidasCargadas / TotalPartidas) &times; VolumenExpedicion<br>
+    Volumen Total Equipo: CurrentVolume = &sum; VolPartida<br>
+    % Volumen = (CurrentVolume / EquipmentVolume) &times; 100
+  </div>
+  <p><strong>Formato en Pantalla:</strong> <code>VOLUMEN: (XX.X%)&nbsp;&nbsp;&nbsp;&nbsp;XX.X m³</code></p>
+
+  <h3>5.2. Ocupación en Metros Lineales (ML) y Porcentaje de Suelo</h3>
+  <p>El cálculo de metros lineales se obtiene dividiendo el volumen de cada partida entre su altura física. El porcentaje de ocupación lineal se calcula dividiendo los metros lineales totales cargados sobre la <strong>Longitud Interior</strong> del contenedor (ej. 13.6 m para 40 pies o 6.0 m para 20 pies):</p>
+  <div class="formula-box">
+    Metros Lineales por Partida: MLPartida = VolPartida / AlturaPartida<br>
+    Metros Lineales Totales: CurrentLinealMeters = &sum; MLPartida<br>
+    % Ocupación Lineal = (CurrentLinealMeters / LongitudInterior) &times; 100
+  </div>
+  <p><strong>Formato en Pantalla:</strong> <code>OCUPACIÓN: (XX.X%)&nbsp;&nbsp;&nbsp;&nbsp;XX.XX m lin.</code></p>
+
+  <h3>5.3. Kilos Efectivos y Porcentaje de Capacidad</h3>
+  <div class="formula-box">
+    Capacidad Máxima de Carga: CapacidadKg = TEUS &times; TargetWeightPerTeu<br>
+    % Kilos Efectivos = (CurrentWeight / CapacidadKg) &times; 100
+  </div>
+  <p><strong>Formato en Pantalla:</strong> <code>KILOS: (XX.X%)&nbsp;&nbsp;&nbsp;&nbsp;XXXX kg</code></p>
+
+  <!-- 6. MATRIZ DE CASOS DE USO -->
+  <h2>6. Matriz de Casos de Uso Operativos</h2>
+  <table>
+    <tr><th>ID</th><th>Caso de Uso</th><th>Condición Disparadora</th><th>Respuesta del Dashboard</th></tr>
+    <tr>
+      <td><strong>CU-01</strong></td>
+      <td>Acoplamiento de Contenedor Vacío</td>
+      <td>El muelle tiene un contenedor físico acoplado pero sin viaje asignado (<code>status: "pending"</code>, <code>destination: null</code>).</td>
+      <td>Se dibuja la tarjeta en color <strong>gris</strong>, mostrando exclusivamente el número de muelle y el contenedor (ej. <code>M15</code> y <code>TASU009999</code>).</td>
+    </tr>
+    <tr>
+      <td><strong>CU-02</strong></td>
+      <td>Asignación de Viaje Export</td>
+      <td>El ERP asigna código de viaje y destino (ej. <code>PMI</code>).</td>
+      <td>La tarjeta cambia inmediatamente a <strong>celeste claro</strong>, mostrando destino, transporte, operador, métricas de volumen, metros lineales y kilos con sus respectivos porcentajes.</td>
+    </tr>
+    <tr>
+      <td><strong>CU-03</strong></td>
+      <td>Llegada de Contenedor Import</td>
+      <td>El destino del viaje coincide con la delegación activa (ej. <code>BCN</code> en BCN).</td>
+      <td>La tarjeta se colorea en <strong>naranja claro</strong> (sin la palabra "DESCARGA"), desplegando la lista de expediciones entrantes y la línea <code>PENDIENTE: X / Y P. (%)</code>.</td>
+    </tr>
+    <tr>
+      <td><strong>CU-04</strong></td>
+      <td>Escaneo de Bulto con PDA</td>
+      <td>El operario lee una etiqueta de bulto con su lector.</td>
+      <td>Se descuenta la partida pendiente, se incrementa el volumen, los metros lineales y los kilos en el muelle de forma reactiva y fluida.</td>
+    </tr>
+    <tr>
+      <td><strong>CU-05</strong></td>
+      <td>Filtrado DUA en Canarias</td>
+      <td>El supervisor marca el check <code>[✓] DUA</code> en LPA o SCT.</td>
+      <td>La columna oculta las expediciones retenidas por aduana y actualiza el contador al número exacto de expediciones despachadas (ej. <code>2 EXP</code>).</td>
+    </tr>
+    <tr>
+      <td><strong>CU-06</strong></td>
+      <td>Cierre de Viaje</td>
+      <td>El supervisor cierra el contenedor en el ERP (<code>status: "closed"</code>).</td>
+      <td>La tarjeta muestra el banner <code>VIAJE CERRADO</code> o <code>DESCARGA FINALIZADA</code>, bloqueando la recepción de nuevos escaneos.</td>
+    </tr>
+    <tr>
+      <td><strong>CU-07</strong></td>
+      <td>Desenganche y Salida Física</td>
+      <td>El camión retira el contenedor de la nave (<code>hasStay: false</code>).</td>
+      <td>La tarjeta desaparece de la fila de muelles. Los demás muelles se reordenan automáticamente en secuencia continua.</td>
+    </tr>
+  </table>
+
+  <!-- 7. REQUISITOS NO FUNCIONALES -->
+  <div class="page-break"></div>
+  <h2>7. Requisitos No Funcionales y Entorno de Ejecución</h2>
+  <ul class="checklist">
+    <li><strong>Rendimiento y Ligereza:</strong> Implementado en Vanilla JavaScript y CSS nativo sin frameworks pesados, garantizando un tiempo de carga inferior a 300 ms en redes industriales.</li>
+    <li><strong>Diseño Responsivo e Industrial:</strong> Optimizado para pantallas industriales Full HD (1920x1080) y 4K (3840x2160), con fuentes monoespaciadas legibles a distancia.</li>
+    <li><strong>Tolerancia a Fallos de Red:</strong> Reconexión automática con reintentos exponenciales y semáforo visual de estado de enlace ERP (<code>ERP ONLINE</code> / <code>RECONECTANDO</code>).</li>
+    <li><strong>Compatibilidad de Navegadores:</strong> Totalmente compatible con Chromium, Google Chrome, Microsoft Edge y Firefox en Windows, Linux y Android TV.</li>
+  </ul>
+
+  <!-- 8. CHECKLIST DE CONFORMIDAD -->
+  <h2>8. Criterios de Aceptación y Conformidad</h2>
+  <table>
+    <tr><th>Módulo</th><th>Criterio de Validación</th><th>Estado</th></tr>
+    <tr><td><strong>Muelles</strong></td><td>Solo se muestran muelles con estancia activa en secuencia continua ordenada.</td><td>✅ Conforme</td></tr>
+    <tr><td><strong>Carga</strong></td><td>Fondo celeste claro, matrícula/transportista, operador, volumen en m³, ML en m lin. y kilos efectivos con % simétricos.</td><td>✅ Conforme</td></tr>
+    <tr><td><strong>Descarga</strong></td><td>Fondo naranja claro, sin texto "DESCARGA", lista de expediciones y pendientes en una sola línea horizontal.</td><td>✅ Conforme</td></tr>
+    <tr><td><strong>Estancia sin viaje</strong></td><td>Fondo gris neutro, muestra exclusivamente muelle y contenedor.</td><td>✅ Conforme</td></tr>
+    <tr><td><strong>Canarias</strong></td><td>Check <code>[✓] DUA</code> en cabecera de LPA y SCT, mostrando cantidad absoluta sin fracciones.</td><td>✅ Conforme</td></tr>
+    <tr><td><strong>API ERP</strong></td><td>Contrato de datos alineado y probado según la especificación técnica oficial.</td><td>✅ Conforme</td></tr>
+  </table>
+
+  <!-- FOOTER -->
+  <div class="doc-footer">
+    <p>Documento de Especificación Funcional de Producto — Sistema Dashboard Operativo de Almacén</p>
+    <p>Grupo Marítima del Mediterráneo (Grupomar) — Todos los derechos reservados &copy; 2026</p>
+  </div>
+
+</body>
+</html>
