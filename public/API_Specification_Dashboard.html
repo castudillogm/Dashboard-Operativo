@@ -295,7 +295,7 @@
   <div class="alert alert-success">
     <strong>✨ Reglas de Visualización Actualizadas:</strong>
     <ul style="margin-left: 1.5rem; margin-top: 0.5rem; font-size: 0.86rem;">
-      <li><strong>Muelles Secuenciales con Estancia Únicamente:</strong> Se eliminó la separación en cajas agrupadas. Ahora los muelles se muestran ordenados en secuencia continua (<code>M01</code>, <code>M02</code>, <code>M05</code>...), mostrando exclusivamente aquellos que tienen una estancia activa (<code>hasStay: true</code> y contenedor presente). Los muelles vacíos quedan ocultos.</li>
+      <li><strong>Muelles Secuenciales con Estancia Únicamente:</strong> Se eliminó la separación en cajas agrupadas. Ahora los muelles se muestran ordenados en secuencia continua (<code>M01</code>, <code>M02</code>, <code>M05</code>...), mostrando exclusivamente aquellos que tienen una estancia activa (<code>hasStay: true</code>). Los muelles vacíos quedan ocultos.</li>
       <li><strong>Tres Estados y Colores de Muelles:</strong>
         <ul>
           <li><strong>Carga (Exportación):</strong> Fondo <span class="badge-preview badge-load">Celeste Claro</span> (<code>#e0f2fe</code>). Muestra matrícula/transportista, operador asignado, volumen (con % al lado), ocupación en ML y kilos efectivos (con % al lado).</li>
@@ -444,10 +444,10 @@
     <tr><td><code>driverType</code></td><td>string</td><td><code>"internal" | "external"</code></td><td>Tipo de conductor asignado. Si es <code>"internal"</code> se prioriza la matrícula; si es <code>"external"</code> se muestra el transportista.</td></tr>
     <tr><td><code>vehiclePlate</code></td><td>string</td><td><code>"8421-KLS"</code></td><td>Matrícula de la tractora o camión de reparto (chófer interno).</td></tr>
     <tr><td><code>carrierName</code></td><td>string</td><td><code>"Trans. Canarian Express"</code></td><td>Nombre de la empresa transportista o agencia externa asignada.</td></tr>
-    <tr><td><code>currentVolume</code></td><td>number</td><td><code>24.5</code></td><td>Volumen acumulado cargado actualmente en el contenedor (en m³).</td></tr>
-    <tr><td><code>equipmentVolume</code></td><td>number</td><td><code>76.0</code></td><td>Capacidad cúbica máxima del equipo contenedor (en m³).</td></tr>
+    <tr><td><code>currentVolume</code></td><td>number</td><td><code>24.5</code></td><td>Volumen total acumulado de las partidas cargadas en el contenedor (en m³). Se obtiene sumando el volumen provisto directamente por el ERP para cada partida cargada (&sum; VolPartida).</td></tr>
+    <tr><td><code>equipmentVolume</code></td><td>number</td><td><code>76.0</code></td><td>Capacidad cúbica máxima del equipo contenedor (en m³), obtenida directamente de las dimensiones registradas en la ficha del contenedor en el ERP (campo <code>volumen</code>).</td></tr>
     <tr><td><code>currentLinealMeters</code></td><td>number</td><td><code>10.20</code></td><td>Metros lineales ocupados actualmente por la mercancía cargada (en m lin.).</td></tr>
-    <tr><td><code>equipmentLength</code></td><td>number</td><td><code>13.6</code></td><td>Longitud total del contenedor (en metros).</td></tr>
+    <tr><td><code>equipmentLength</code></td><td>number</td><td><code>13.6</code></td><td>Longitud interior del contenedor (en metros), utilizada para el cálculo de ocupación lineal.</td></tr>
     <tr><td><code>currentWeight</code></td><td>number</td><td><code>1250</code></td><td>Peso total acumulado cargado en el contenedor (en Kg).</td></tr>
     <tr><td><code>teus</code></td><td>number</td><td><code>1 | 2</code></td><td>Tipo de contenedor en TEUS (1 TEU = 20 pies / 2 TEUS = 40 pies).</td></tr>
     <tr><td><code>targetWeightPerTeu</code></td><td>number</td><td><code>10300</code></td><td>Capacidad máxima de peso por TEU de la ruta (utilizado como base del 100% para el cálculo del porcentaje de kilos efectivos).</td></tr>
@@ -466,7 +466,7 @@
     <tr><td><code>totalWeight</code></td><td>number</td><td><code>1450</code></td><td>Peso total de la expedición (en Kg).</td></tr>
     <tr><td><code>pallets</code></td><td>number</td><td><code>3</code></td><td>Número de palets asignados a la expedición (PAL).</td></tr>
     <tr><td><code>packages</code></td><td>number</td><td><code>12</code></td><td>Número de bultos asignados a la expedición (BLT).</td></tr>
-    <tr><td><code>volume</code></td><td>number</td><td><code>15.6</code></td><td>Volumen volumétrico total de la expedición (en m³).</td></tr>
+    <tr><td><code>volume</code></td><td>number</td><td><code>15.6</code></td><td>Volumen volumétrico exacto de la partida (en m³), provisto directamente por el ERP sin prorrateos.</td></tr>
     <tr><td><code>height</code></td><td>number</td><td><code>2.2</code></td><td>Altura de la partida/bulto (en metros), utilizada para el cálculo de metros lineales.</td></tr>
     <tr><td><code>isADR</code></td><td>boolean</td><td><code>true</code></td><td>Indica si transporta Mercancías Peligrosas (ADR). Resalta la tarjeta con insignia amarilla.</td></tr>
     <tr><td><code>isDispatched</code></td><td>boolean</td><td><code>true</code></td><td>Estado del despacho aduanero (DUA). Utilizado para el filtro interactivo en Canarias (LPA, SCT).</td></tr>
@@ -509,12 +509,12 @@
     <tr><th>Métrica</th><th>Fórmula Operativa</th><th>Visualización en Pantalla</th></tr>
     <tr>
       <td><strong>Volumen Acumulado y %</strong></td>
-      <td><code>VolPartida = (PartidasCargadas / TotalPartidas) &times; VolumenExpedicion</code><br><code>% Volumen = (currentVolume / equipmentVolume) &times; 100</code></td>
+      <td><code>VolPartida: Directo desde el ERP por partida</code><br><code>CurrentVolume = &sum; VolPartida (partidas cargadas)</code><br><code>% Volumen = (CurrentVolume / EquipmentVolume) &times; 100</code><br><small style="color: #6b7280;">* EquipmentVolume sale de las dimensiones del contenedor en el ERP (campo volumen)</small></td>
       <td><code>VOLUMEN: (32.2%)&nbsp;&nbsp;&nbsp;&nbsp;24.5 m³</code></td>
     </tr>
     <tr>
       <td><strong>Ocupación en Metros Lineales y %</strong></td>
-      <td><code>MLPartida = VolPartida / AlturaPartida</code><br><code>% Ocupación ML = (currentLinealMeters / longitudInterior) &times; 100</code></td>
+      <td><code>MLPartida = VolPartida / AlturaPartida</code><br><code>CurrentLinealMeters = &sum; MLPartida</code><br><code>% Ocupación ML = (currentLinealMeters / equipmentLength) &times; 100</code><br><small style="color: #6b7280;">* equipmentLength corresponde a la longitud interior del contenedor</small></td>
       <td><code>OCUPACIÓN: (79.2%)&nbsp;&nbsp;&nbsp;&nbsp;10.20 m lin.</code></td>
     </tr>
     <tr>
