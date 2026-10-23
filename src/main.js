@@ -54,6 +54,7 @@ async function init() {
     btnFilterOccupied.addEventListener('click', () => {
       filterOccupiedOnly = !filterOccupiedOnly;
       btnFilterOccupied.classList.toggle('active', filterOccupiedOnly);
+      if (sectionDocks) sectionDocks.innerHTML = '';
       renderDocks();
     });
   }
@@ -289,7 +290,13 @@ function renderDocks() {
       : `TRANSP.: ${dock.carrierName || dock.transportista || dock.chofer || '---'}`;
     const operatorText = dock.operator ? `OPERADOR: ${dock.operator}` : '';
 
-    if (!card || card.dataset.type !== expectedType || card.dataset.closed !== String(isClosed)) {
+    const hasRequiredStructure = card &&
+      ((expectedType === 'load' && card.querySelector('.dock-driver') && card.querySelector('.dock-operator')) ||
+       (expectedType === 'unload' && card.querySelector('.dock-driver') && card.querySelector('.dock-operator') && card.querySelector('.import-expeditions-list')) ||
+       (expectedType === 'empty' && card.querySelector('.dock-empty-tag')) ||
+       (expectedType === 'pending' && card.querySelector('.container-id')));
+
+    if (!card || card.dataset.type !== expectedType || card.dataset.closed !== String(isClosed) || !hasRequiredStructure) {
       if (!card) {
         card = document.createElement('div');
         card.id = `dock-${dock.id}`;
@@ -358,7 +365,19 @@ function renderDocks() {
           ${isClosed ? '<div class="closed-banner">VIAJE CERRADO</div>' : ''}
         `;
       } else if (expectedType === 'unload') {
-        // Unload / Descarga (sin la palabra "DESCARGA", solo color naranja)
+        const totalImportParts = (dock.expeditions || []).reduce((sum, e) => sum + e.totalParts, 0);
+        const pendingImportParts = (dock.expeditions || []).reduce((sum, e) => sum + e.pendingParts, 0);
+        const unloadedImportParts = totalImportParts - pendingImportParts;
+        const importPercentage = totalImportParts > 0 ? (unloadedImportParts / totalImportParts) * 100 : 0;
+        const visibleExps = (dock.expeditions || []).filter(exp => exp.pendingParts > 0);
+        const expsHtml = visibleExps.map(exp => `
+          <div class="import-exp-item">
+            <span class="import-exp-id">${exp.id}</span>
+            <span class="import-exp-route">${exp.origin} &rarr; ${exp.destination}</span>
+            <span class="import-exp-counter">${exp.pendingParts}/${exp.totalParts} P.</span>
+          </div>
+        `).join('');
+
         card.innerHTML = `
           <div class="dock-header">
             <div class="dock-ids">
@@ -368,12 +387,12 @@ function renderDocks() {
           </div>
           <div class="dock-driver">${driverText}</div>
           <div class="dock-operator">${operatorText}</div>
-          <div class="import-expeditions-list"></div>
+          <div class="import-expeditions-list">${expsHtml}</div>
           <div class="weight-info import-parts-info">
-            <span class="import-parts-text">PENDIENTE: <span class="import-pending-parts">0</span> / <span class="import-total-parts">0</span> P. <span class="import-unloaded-percentage">(0%)</span></span>
+            <span class="import-parts-text">PENDIENTE: <span class="import-pending-parts">${pendingImportParts}</span> / <span class="import-total-parts">${totalImportParts}</span> P. <span class="import-unloaded-percentage">(${importPercentage.toFixed(1)}%)</span></span>
           </div>
           <div class="progress-container">
-            <div class="progress-bar import-bar ${isClosed ? 'closed' : ''}" style="width: 0%"></div>
+            <div class="progress-bar import-bar ${isClosed ? 'closed' : ''}" style="width: ${Math.min(importPercentage, 100)}%"></div>
           </div>
           ${isClosed ? '<div class="closed-banner">DESCARGA FINALIZADA</div>' : ''}
         `;
