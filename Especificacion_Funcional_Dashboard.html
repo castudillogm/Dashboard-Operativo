@@ -351,24 +351,20 @@
 
   <!-- 1. OBJETIVO Y VISIÓN -->
   <h2>1. Objetivo y Filosofía del Producto</h2>
-  <p>El <strong>Dashboard Operativo de Almacén</strong> es una aplicación web interactiva de monitorización en tiempo real diseñada para instalarse en pantallas industriales, monitores de nave y puestos de control de tráfico logístico. Su propósito primordial es dotar a los jefes de almacén y operarios de una visibilidad instantánea, continua y libre de distracciones sobre el estado de la carga de contenedores y el avance de expediciones físicas.</p>
+  <p>El <strong>Dashboard Operativo de Almacén</strong> es una aplicación web interactiva de monitorización en tiempo real. Su propósito primordial es dotar a los jefes de almacén y operarios de una visibilidad instantánea y continua sobre el estado de la carga de contenedores y el avance de expediciones físicas.</p>
 
   <div class="features-grid">
     <div class="feature-card">
       <h4>⚡ Tiempo Real Reactivo</h4>
-      <p>Actualización periódica continua (polling) que actualiza el DOM de forma reactiva sin parpadeos, recargas de página ni pérdida de estado.</p>
+      <p>Actualización periódica continua que actualiza de forma reactiva sin parpadeos, recargas de página ni pérdida de estado.</p>
     </div>
     <div class="feature-card">
-      <h4>🏢 Soporte Multi-Delegación</h4>
-      <p>Permite conmutar entre cualquier centro logístico (BCN, MAD, LPA, SCT, PMI, etc.) con aislamiento total de datos de almacén.</p>
+      <h4>🎯 Organización por Destino</h4>
+      <p>Organiza y clasifica las expediciones según su plaza de destino final, facilitando la operativa directa de consolidación y carga.</p>
     </div>
     <div class="feature-card">
       <h4>📺 Visualización Andon</h4>
       <p>Códigos cromáticos universales para identificar inmediatamente muelles en carga, descarga y estancias pendientes sin necesidad de leer textos extensos.</p>
-    </div>
-    <div class="feature-card">
-      <h4>🛡️ Acceso Seguro</h4>
-      <p>Protección con PIN de seguridad para configuración técnica, selección de delegación y conmutación entre API Real y Simulación.</p>
     </div>
   </div>
 
@@ -393,7 +389,7 @@
 
   <div class="alert alert-info">
     <strong>📌 Regla Primordial de Estancias:</strong>
-    Exclusivamente se muestran aquellos muelles que disponen de una <strong>estancia física abierta</strong> (<code>hasStay === true</code> y contenedor presente). Los muelles libres o sin estancia no ocupan espacio visual en el monitor.
+    Exclusivamente se muestran aquellos muelles que disponen de una <strong>estancia física abierta</strong>. Los muelles libres o sin estancia no ocupan espacio visual en el monitor.
   </div>
 
   <h3>3.1. Los Tres Estados Visuales del Muelle</h3>
@@ -463,10 +459,10 @@
 
   <h3>4.2. Tratamiento Especial de Plazas de Canarias (LPA y SCT)</h3>
   <div class="alert alert-success">
-    <strong>🌴 Checkbox Interactivo DUA (Despacho Aduanero):</strong>
+    <strong>Checkbox Interactivo DUA (Despacho Aduanero):</strong>
     En las columnas correspondientes a Canarias, se integra directamente en la cabecera azul el selector <code>[✓] DUA</code>.
     <br><br>
-    Al marcar el check, el dashboard filtra instantáneamente y visualiza <strong>únicamente las expediciones que cuentan con despacho aduanero completado</strong> (<code>isDispatched: true</code>). En este estado, el contador muestra el número absoluto exacto (por ejemplo <code>2 EXP</code>, sin fracciones).
+    Al marcar el check, el dashboard filtra instantáneamente y visualiza <strong>únicamente las expediciones que cuentan con despacho aduanero completado</strong>. En este estado, el contador muestra el número absoluto exacto (por ejemplo <code>2 EXP</code>, sin fracciones).
   </div>
 
   <h3>4.3. Listado de Expediciones en Carga Parcial</h3>
@@ -484,10 +480,12 @@
   <p>El dashboard efectúa las siguientes transformaciones matemáticas estandarizadas para reflejar con exactitud la ocupación espacial y ponderal del contenedor:</p>
 
   <h3>5.1. Volumen y Porcentaje de Ocupación Cúbica</h3>
+  <p>Cada partida dispone de la información de su volumen exacto directamente desde el sistema ERP. Asimismo, la información del volumen del equipo (contenedor) proviene directamente de las dimensiones registradas en la ficha del contenedor en el ERP (campo <code>volumen</code>):</p>
   <div class="formula-box">
-    Volumen por Partida Cargada: VolPartida = (PartidasCargadas / TotalPartidas) &times; VolumenExpedicion<br>
+    Cada partida tiene la información del volumen desde el ERP (VolPartida)<br>
     Volumen Total Equipo: CurrentVolume = &sum; VolPartida<br>
-    % Volumen = (CurrentVolume / EquipmentVolume) &times; 100
+    % Volumen = (CurrentVolume / EquipmentVolume) &times; 100<br>
+    <small style="color: #94a3b8;">* El EquipmentVolume se obtiene de las dimensiones del contenedor en el ERP en el campo volumen</small>
   </div>
   <p><strong>Formato en Pantalla:</strong> <code>VOLUMEN: (XX.X%)&nbsp;&nbsp;&nbsp;&nbsp;XX.X m³</code></p>
 
@@ -553,28 +551,6 @@
       <td>El camión retira el contenedor de la nave (<code>hasStay: false</code>).</td>
       <td>La tarjeta desaparece de la fila de muelles. Los demás muelles se reordenan automáticamente en secuencia continua.</td>
     </tr>
-  </table>
-
-  <!-- 7. REQUISITOS NO FUNCIONALES -->
-  <div class="page-break"></div>
-  <h2>7. Requisitos No Funcionales y Entorno de Ejecución</h2>
-  <ul class="checklist">
-    <li><strong>Rendimiento y Ligereza:</strong> Implementado en Vanilla JavaScript y CSS nativo sin frameworks pesados, garantizando un tiempo de carga inferior a 300 ms en redes industriales.</li>
-    <li><strong>Diseño Responsivo e Industrial:</strong> Optimizado para pantallas industriales Full HD (1920x1080) y 4K (3840x2160), con fuentes monoespaciadas legibles a distancia.</li>
-    <li><strong>Tolerancia a Fallos de Red:</strong> Reconexión automática con reintentos exponenciales y semáforo visual de estado de enlace ERP (<code>ERP ONLINE</code> / <code>RECONECTANDO</code>).</li>
-    <li><strong>Compatibilidad de Navegadores:</strong> Totalmente compatible con Chromium, Google Chrome, Microsoft Edge y Firefox en Windows, Linux y Android TV.</li>
-  </ul>
-
-  <!-- 8. CHECKLIST DE CONFORMIDAD -->
-  <h2>8. Criterios de Aceptación y Conformidad</h2>
-  <table>
-    <tr><th>Módulo</th><th>Criterio de Validación</th><th>Estado</th></tr>
-    <tr><td><strong>Muelles</strong></td><td>Solo se muestran muelles con estancia activa en secuencia continua ordenada.</td><td>✅ Conforme</td></tr>
-    <tr><td><strong>Carga</strong></td><td>Fondo celeste claro, matrícula/transportista, operador, volumen en m³, ML en m lin. y kilos efectivos con % simétricos.</td><td>✅ Conforme</td></tr>
-    <tr><td><strong>Descarga</strong></td><td>Fondo naranja claro, sin texto "DESCARGA", lista de expediciones y pendientes en una sola línea horizontal.</td><td>✅ Conforme</td></tr>
-    <tr><td><strong>Estancia sin viaje</strong></td><td>Fondo gris neutro, muestra exclusivamente muelle y contenedor.</td><td>✅ Conforme</td></tr>
-    <tr><td><strong>Canarias</strong></td><td>Check <code>[✓] DUA</code> en cabecera de LPA y SCT, mostrando cantidad absoluta sin fracciones.</td><td>✅ Conforme</td></tr>
-    <tr><td><strong>API ERP</strong></td><td>Contrato de datos alineado y probado según la especificación técnica oficial.</td><td>✅ Conforme</td></tr>
   </table>
 
   <!-- FOOTER -->
