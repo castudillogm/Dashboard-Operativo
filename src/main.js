@@ -279,7 +279,10 @@ function renderDocks() {
         const maxVol = dock.equipmentVolume || (dock.teus === 1 ? 38.0 : 76.0);
         const currentVol = dock.currentVolume != null ? dock.currentVolume : 0;
         const volPct = maxVol > 0 ? (currentVol / maxVol) * 100 : 0;
+
+        const maxML = dock.longitudInterior != null ? dock.longitudInterior : (dock.equipmentLength || (dock.teus === 1 ? 6.0 : 13.6));
         const currentML = dock.currentLinealMeters != null ? dock.currentLinealMeters : 0;
+        const mlPct = maxML > 0 ? (currentML / maxML) * 100 : 0;
 
         const targetWeightVal = (dock.targetWeightPerTeu !== undefined && dock.targetWeightPerTeu !== null && dock.targetWeightPerTeu > 0) ? dock.targetWeightPerTeu : 10300;
         const maxWeight = (dock.teus || 2) * targetWeightVal;
@@ -298,10 +301,10 @@ function renderDocks() {
           <div class="dock-metrics">
             <div class="dock-metric-row">
               <span class="metric-label">VOLUMEN: <span class="vol-pct">(${volPct.toFixed(1)}%)</span></span>
-              <span class="metric-value"><strong class="vol-current">${currentVol.toFixed(1)}</strong> / ${maxVol.toFixed(1)} m³</span>
+              <span class="metric-value"><strong class="vol-current">${currentVol.toFixed(1)}</strong> m³</span>
             </div>
             <div class="dock-metric-row">
-              <span class="metric-label">OCUPACIÓN:</span>
+              <span class="metric-label">OCUPACIÓN: <span class="ml-pct">(${mlPct.toFixed(1)}%)</span></span>
               <span class="metric-value"><strong class="ml-current">${currentML.toFixed(2)}</strong> m lin.</span>
             </div>
             <div class="dock-metric-row">
@@ -387,7 +390,10 @@ function renderDocks() {
       const maxVol = dock.equipmentVolume || (dock.teus === 1 ? 38.0 : 76.0);
       const currentVol = dock.currentVolume != null ? dock.currentVolume : 0;
       const volPct = maxVol > 0 ? (currentVol / maxVol) * 100 : 0;
+
+      const maxML = dock.longitudInterior != null ? dock.longitudInterior : (dock.equipmentLength || (dock.teus === 1 ? 6.0 : 13.6));
       const currentML = dock.currentLinealMeters != null ? dock.currentLinealMeters : 0;
+      const mlPct = maxML > 0 ? (currentML / maxML) * 100 : 0;
 
       const targetWeightVal = (dock.targetWeightPerTeu !== undefined && dock.targetWeightPerTeu !== null && dock.targetWeightPerTeu > 0) ? dock.targetWeightPerTeu : 10300;
       const maxWeight = (dock.teus || 2) * targetWeightVal;
@@ -398,6 +404,10 @@ function renderDocks() {
       }
       if (volPctEl && volPctEl.textContent !== `(${volPct.toFixed(1)}%)`) {
         volPctEl.textContent = `(${volPct.toFixed(1)}%)`;
+      }
+      const mlPctEl = card.querySelector('.ml-pct');
+      if (mlPctEl && mlPctEl.textContent !== `(${mlPct.toFixed(1)}%)`) {
+        mlPctEl.textContent = `(${mlPct.toFixed(1)}%)`;
       }
       if (mlCurrentEl && mlCurrentEl.textContent !== currentML.toFixed(2)) {
         mlCurrentEl.textContent = currentML.toFixed(2);

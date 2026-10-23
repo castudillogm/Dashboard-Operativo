@@ -418,6 +418,15 @@ body {
   color: #38bdf8;
 }
 
+.ml-pct {
+  font-weight: 800;
+  color: #0284c7;
+}
+
+[data-theme="dark"] .ml-pct {
+  color: #38bdf8;
+}
+
 .kg-pct {
   font-weight: 800;
   color: #ea580c;
